@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setupEventListeners();
     } catch (error) {
         console.error('Error loading song data:', error);
-        alert('無法載入歌曲數據，請稍後再試。');
+        alert('錯誤，無法載入歌曲數據，請稍後再試。');
     }
 });
 
