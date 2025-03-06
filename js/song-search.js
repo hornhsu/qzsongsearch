@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Fetch and parse the CSV data
         // const response = await fetch('../g歌单.csv');
-        const response = await fetch('https://raw.githubusercontent.com/hornhsu/qzsongsearch/refs/heads/main/songlist.csv');
+        const response = await fetch('songlist.csv');
+        //const response = await fetch('https://raw.githubusercontent.com/hornhsu/qzsongsearch/refs/heads/main/songlist.csv');
         const csvText = await response.text();
         
         // Parse CSV data and skip the header row
