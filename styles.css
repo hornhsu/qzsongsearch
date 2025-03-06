@@ -138,6 +138,7 @@ header p {
     box-shadow: var(--shadow);
     transition: var(--transition);
     position: relative;
+    cursor: pointer; /* Add cursor pointer to indicate clickable */
 }
 
 .song-card:hover {
@@ -302,6 +303,32 @@ footer {
 
 .song-card {
     animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Copy notification styles */
+.copy-notification {
+    position: fixed;
+    bottom: -100px; /* Start offscreen */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: bottom 0.5s ease;
+    z-index: 1000;
+}
+
+.copy-notification i {
+    font-size: 1.2rem;
+}
+
+.copy-notification.show {
+    bottom: 30px;
 }
 
 /* Responsive design */

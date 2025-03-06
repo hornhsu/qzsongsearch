@@ -290,6 +290,54 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             songContainer.appendChild(songCard);
+            
+            // Add click event listener to copy song info
+            songCard.addEventListener('click', function() {
+                const songTitle = song['歌曲'] || '';
+                const artist = song['歌手'] || '';
+                const textToCopy = `${songTitle} - ${artist}`;
+                
+                // Copy to clipboard
+                copyToClipboard(textToCopy);
+                
+                // Show notification
+                showCopyNotification(textToCopy);
+            });
         });
+    }
+    
+    // Function to copy text to clipboard
+    function copyToClipboard(text) {
+        // Create a temporary textarea element to copy from
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        
+        // Select and copy the text
+        textarea.select();
+        document.execCommand('copy');
+        
+        // Clean up
+        document.body.removeChild(textarea);
+    }
+    
+    // Function to show and hide notification
+    function showCopyNotification(text) {
+        const notification = document.getElementById('copyNotification');
+        const textDisplay = document.getElementById('copiedTextDisplay');
+        
+        // Update the notification text
+        textDisplay.textContent = `已複製: ${text}`;
+        
+        // Show the notification
+        notification.classList.add('show');
+        
+        // Hide the notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
     }
 });
