@@ -3,62 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音樂館</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>歌曲搜尋庫</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>音樂館</h1>
+            <h1>音樂探索</h1>
+            <p>尋找你喜愛的歌曲</p>
         </header>
         
-        <div class="search-section">
+        <div class="search-container">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜尋歌曲或歌手...">
+                <input type="text" id="searchInput" placeholder="搜尋歌曲、歌手或年份...">
                 <button id="searchButton"><i class="fas fa-search"></i></button>
-                <button id="resetButton"><i class="fas fa-redo"></i></button>
             </div>
             
-            <div class="filters">
-                <div class="filter-group">
-                    <label for="singerFilter">歌手</label>
-                    <select id="singerFilter">
-                        <option value="">全部歌手</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="yearFilter">年份</label>
-                    <select id="yearFilter">
-                        <option value="">全部年份</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="genreFilter">類型</label>
-                    <select id="genreFilter">
-                        <option value="">全部類型</option>
-                    </select>
-                </div>
+            <div class="filter-options">
+                <select id="filterType">
+                    <option value="all">所有類型</option>
+                    <!-- Will be populated by JavaScript -->
+                </select>
+                <select id="filterYear">
+                    <option value="all">所有年份</option>
+                    <!-- Will be populated by JavaScript -->
+                </select>
+                <select id="filterArtist">
+                    <option value="all">所有歌手</option>
+                    <!-- Will be populated by JavaScript -->
+                </select>
             </div>
         </div>
         
         <div class="results-info">
-            <p><span id="resultCount">0</span> 首歌曲</p>
+            <p id="resultsCount">顯示全部歌曲</p>
+            <div class="view-toggle">
+                <button id="listView" class="active"><i class="fas fa-list"></i></button>
+                <button id="gridView"><i class="fas fa-th"></i></button>
+            </div>
         </div>
         
-        <div class="results-section">
-            <div id="resultsContainer" class="cards-container">
-                <!-- Cards will be populated here -->
-            </div>
-            <div id="noResults" class="no-results">
-                <i class="far fa-frown"></i>
-                <p>沒有找到符合條件的歌曲</p>
-            </div>
+        <div id="songContainer" class="list-view">
+            <!-- Songs will be displayed here -->
+        </div>
+        
+        <div id="noResults" class="hidden">
+            <i class="fas fa-music"></i>
+            <p>沒有找到符合條件的歌曲</p>
         </div>
     </div>
+
+    <footer>
+        <p>© 2025 音樂探索 | 歌曲搜尋庫</p>
+    </footer>
     
-    <script src="js/song-search.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
