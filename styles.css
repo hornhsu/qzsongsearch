@@ -9,6 +9,7 @@
     --accent-color: #fd79a8;
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
+    --primary-color-rgb: 108, 92, 231;
 }
 
 /* Dark theme */
@@ -21,6 +22,7 @@
     --card-bg: #252541;
     --accent-color: #ff79ac;
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    --primary-color-rgb: 159, 148, 255;
 }
 
 /* Apply dark theme automatically if system preference is dark */
@@ -75,16 +77,23 @@ body {
 }
 
 header {
-    text-align: center;
-    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center; /* 改为居中对齐 */
+    position: relative; /* 添加相对定位，允许绝对定位子元素 */
+    margin-bottom: 1rem;
     animation: fadeIn 1s ease-out;
+}
+
+.header-content {
+    text-align: left; /* 改为左对齐 */
 }
 
 header h1 {
     font-size: 3rem;
     color: var(--primary-color);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0rem;
     font-weight: 700;
+    text-align: center; /* 标题文本居中 */
 }
 
 header p {
@@ -106,7 +115,7 @@ header p {
 
 .search-box input {
     flex: 1;
-    padding: .5rem 1.5rem;
+    padding: .5rem 1rem;
     border: none;
     outline: none;
     font-size: 1rem;
@@ -116,7 +125,7 @@ header p {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -153,8 +162,19 @@ header p {
     background-size: 14px; /* Size of the arrow */
 }
 
-.filter-options select:hover {
-    border-color: var(--primary-color);
+/* Add highlight for the sort dropdown when active */
+#sortOptions {
+    background-color: var(--background-color);
+}
+
+#sortOptions option[value="default"] {
+    font-weight: normal;
+}
+
+/* Add special styling for the currently active sort option */
+.sort-active {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 /* Fix dropdown arrow appearance in different theme */
@@ -273,7 +293,7 @@ header p {
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 3rem;
+    font-size: 2.5rem;
 }
 
 /* Removed lyrics button styling */
@@ -405,18 +425,18 @@ header p {
 .list-view {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: .7rem;
 }
 
 .list-view .song-card {
     display: flex;
-    height: 80px;
+    height: 75px;
     align-items: center;
 }
 
 .list-view .card-image {
-    width: 80px;
-    height: 80px;
+    width: 75px;
+    height: 75px;
     flex-shrink: 0;
 }
 
@@ -546,13 +566,17 @@ footer {
 .theme-switch-container {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.3rem; /* 减小间距 */
+    position: absolute; /* 绝对定位 */
+    right: 0; /* 靠右 */
+    top: 50%; /* 垂直居中 */
+    transform: translateY(-50%); /* 垂直居中微调 */
 }
 
 .theme-switch {
     position: relative;
-    width: 50px;
-    height: 26px;
+    width: 40px; /* 减小宽度 */
+    height: 20px; /* 减小高度 */
 }
 
 .theme-switch input {
@@ -570,16 +594,16 @@ footer {
     bottom: 0;
     background-color: var(--light-text);
     transition: var(--transition);
-    border-radius: 26px;
+    border-radius: 20px; /* 调整为匹配高度 */
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
-    left: 4px;
-    bottom: 4px;
+    height: 14px; /* 减小滑块高度 */
+    width: 14px; /* 减小滑块宽度 */
+    left: 3px; /* 调整左侧位置 */
+    bottom: 3px; /* 调整底部位置 */
     background-color: var(--card-bg);
     transition: var(--transition);
     border-radius: 50%;
@@ -590,12 +614,105 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    transform: translateX(24px);
+    transform: translateX(18px); /* 调整移动距离 */
 }
 
 .theme-icon {
     color: var(--text-color);
+    font-size: 0.8rem; /* 减小图标尺寸 */
+}
+
+/* Sort button styles */
+.sort-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--light-text);
+    transition: var(--transition);
     font-size: 1rem;
+}
+
+.sort-button:hover,
+.sort-button.active {
+    color: var(--primary-color);
+}
+
+/* Sort popup styles */
+.sort-popup {
+    position: absolute;
+    background-color: var(--card-bg);
+    background-color: rgba(249, 249, 249, 0); /* Light theme semi-transparent popup - matches card */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    z-index: 100;
+    min-width: 200px;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sort-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.sort-popup-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.sort-popup-options {
+    padding: 5px 0;
+}
+
+.sort-popup-option {
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.sort-popup-option:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sort-popup-option.active {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.sort-popup-option i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Dark theme sort popup */
+[data-theme="dark"] .sort-popup {
+    background-color: var(--card-bg);
+    background-color: rgba(26, 26, 46, 0); /* Dark theme semi-transparent popup - matches card */
+}
+
+[data-theme="dark"] .sort-popup-option:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .sort-popup-option.active {
+    background-color: rgba(var(--primary-color-rgb), 0.2);
 }
 
 /* Responsive design */
@@ -604,8 +721,19 @@ input:checked + .slider:before {
         padding: 1rem;
     }
     
+    header {
+        /* 在小屏幕上保持左右结构 */
+        justify-content: center;
+    }
+    
     header h1 {
         font-size: 2.5rem;
+    }
+    
+    .theme-switch-container {
+        /* 调整小屏幕上的主题切换组件位置 */
+        position: absolute;
+        right: 0;
     }
     
     .grid-view {
@@ -631,7 +759,8 @@ input:checked + .slider:before {
 
 @media (max-width: 480px) {
     header h1 {
-        font-size: 2rem;
+        font-size: 1.8rem; /* 更小的屏幕上减小标题大小 */
+        padding-right: 25px; /* 确保标题不会被主题开关覆盖 */
     }
     
     .grid-view {
@@ -672,7 +801,7 @@ input:checked + .slider:before {
     
     .theme-switch {
         width: 40px;
-        height: 22px;
+        height: 20px;
     }
     
     .slider:before {
@@ -681,6 +810,6 @@ input:checked + .slider:before {
     }
     
     input:checked + .slider:before {
-        transform: translateX(18px);
+        transform: translateX(20px);
     }
 }

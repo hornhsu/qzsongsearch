@@ -105,6 +105,110 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Set up sort button and popup interactions
+    const sortButton = document.getElementById('sortButton');
+    const sortPopup = document.getElementById('sortPopup');
+    let currentSortOption = 'default';
+    
+    // Show sort popup when clicking the sort button
+    sortButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        const rect = sortButton.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        
+        // Position popup below the sort button
+        sortPopup.style.top = `${rect.bottom + scrollTop + 5}px`;
+        sortPopup.style.left = `${rect.left - sortPopup.offsetWidth + rect.width}px`;
+        
+        // Toggle popup visibility
+        if (sortPopup.classList.contains('show')) {
+            sortPopup.classList.remove('show');
+            sortButton.classList.remove('active');
+        } else {
+            sortPopup.classList.add('show');
+            sortButton.classList.add('active');
+            
+            // Highlight the current sort option
+            highlightActiveSortOption();
+        }
+    });
+    
+    // Close sort popup when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#sortButton') && !e.target.closest('#sortPopup')) {
+            sortPopup.classList.remove('show');
+            sortButton.classList.remove('active');
+        }
+    });
+    
+    // Add event listeners to sort options
+    document.querySelectorAll('.sort-popup-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const sortValue = this.getAttribute('data-sort');
+            currentSortOption = sortValue;
+            
+            // Update UI to show selected sort option
+            highlightActiveSortOption();
+            
+            // Close the popup
+            sortPopup.classList.remove('show');
+            sortButton.classList.remove('active');
+            
+            // If sort button has a badge, show sort icon, otherwise show default icon
+            updateSortButtonIcon();
+            
+            // Perform sort
+            if (window.originalSongs) {
+                performSearch(window.originalSongs);
+            }
+        });
+    });
+    
+    // Function to highlight the active sort option
+    function highlightActiveSortOption() {
+        document.querySelectorAll('.sort-popup-option').forEach(opt => {
+            if (opt.getAttribute('data-sort') === currentSortOption) {
+                opt.classList.add('active');
+            } else {
+                opt.classList.remove('active');
+            }
+        });
+    }
+    
+    // Function to update sort button icon based on current selection
+    function updateSortButtonIcon() {
+        const iconElement = sortButton.querySelector('i');
+        
+        if (currentSortOption === 'default') {
+            iconElement.className = 'fas fa-sort';
+            sortButton.classList.remove('active'); // Normal color when no sorting
+        } else {
+            // Keep button highlighted when sorting is active
+            sortButton.classList.add('active');
+            
+            // Set appropriate icon based on sort type
+            switch(currentSortOption) {
+                case 'title-asc':
+                case 'artist-asc':
+                    iconElement.className = 'fas fa-sort-alpha-down';
+                    break;
+                case 'title-desc':
+                case 'artist-desc':
+                    iconElement.className = 'fas fa-sort-alpha-down-alt';
+                    break;
+                case 'year-desc':
+                    iconElement.className = 'fas fa-sort-numeric-down-alt';
+                    break;
+                case 'year-asc':
+                    iconElement.className = 'fas fa-sort-numeric-down';
+                    break;
+                default:
+                    iconElement.className = 'fas fa-sort';
+            }
+        }
+    }
+    
     // Fetch CSV data from file
     fetch('songlist.csv')
         .then(response => {
@@ -117,6 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Parse CSV into array of song objects
             const songs = parseCSV(csvData);
             
+            // Store original order of songs for default sorting
+            const originalSongs = [...songs];
+            window.originalSongs = originalSongs; // Store in window object for access from sort functions
+            
             // Cache DOM elements
             const searchInput = document.getElementById('searchInput');
             const searchButton = document.getElementById('searchButton');
@@ -124,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const filterType = document.getElementById('filterType');
             const filterYear = document.getElementById('filterYear');
             const filterArtist = document.getElementById('filterArtist');
+            // Remove reference to non-existent sortOptions element
             const resultsCount = document.getElementById('resultsCount');
             const noResults = document.getElementById('noResults');
             const gridViewBtn = document.getElementById('gridView');
@@ -137,29 +246,30 @@ document.addEventListener('DOMContentLoaded', function() {
             displaySongs(songs);
             
             // Add event listeners
-            searchButton.addEventListener('click', () => performSearch(songs));
+            searchButton.addEventListener('click', () => performSearch(originalSongs));
             searchInput.addEventListener('keyup', function(event) {
                 if (event.key === 'Enter') {
-                    performSearch(songs);
+                    performSearch(originalSongs);
                 }
             });
             
-            filterType.addEventListener('change', () => performSearch(songs));
-            filterYear.addEventListener('change', () => performSearch(songs));
-            filterArtist.addEventListener('change', () => performSearch(songs));
+            filterType.addEventListener('change', () => performSearch(originalSongs));
+            filterYear.addEventListener('change', () => performSearch(originalSongs));
+            filterArtist.addEventListener('change', () => performSearch(originalSongs));
+            // Remove event listener for non-existent sortOptions element
             
             gridViewBtn.addEventListener('click', function() {
                 songContainer.className = 'grid-view';
                 gridViewBtn.classList.add('active');
                 listViewBtn.classList.remove('active');
-                displaySongs(filterSongs(songs)); // Redisplay with current filters
+                displaySongs(filterAndSortSongs(originalSongs)); // Redisplay with current filters and sort
             });
             
             listViewBtn.addEventListener('click', function() {
                 songContainer.className = 'list-view';
                 listViewBtn.classList.add('active');
                 gridViewBtn.classList.remove('active');
-                displaySongs(filterSongs(songs)); // Redisplay with current filters
+                displaySongs(filterAndSortSongs(originalSongs)); // Redisplay with current filters and sort
             });
             
             // Add event listener to clear filters button
@@ -169,12 +279,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('filterType').value = 'all';
                 document.getElementById('filterYear').value = 'all';
                 document.getElementById('filterArtist').value = 'all';
+                // Remove reference to sortOptions element
+                
+                // Reset sorting to default
+                currentSortOption = 'default';
+                updateSortButtonIcon();
+                highlightActiveSortOption();
                 
                 // Hide the clear filters button
                 clearFiltersBtn.classList.add('hidden');
                 
                 // Perform search with cleared filters
-                performSearch(songs);
+                performSearch(originalSongs);
                 
                 // Show notification
                 showFilterNotification('已清除所有筛选条件');
@@ -291,10 +407,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedGenre = filterType.value;
         const selectedDecade = filterYear.value;
         const selectedArtist = filterArtist.value;
+        // Use currentSortOption instead of accessing the DOM element
         
         // Show or hide the clear filters button based on whether any filters are active
         if (searchTerm !== '' || selectedGenre !== 'all' || 
-            selectedDecade !== 'all' || selectedArtist !== 'all') {
+            selectedDecade !== 'all' || selectedArtist !== 'all' ||
+            currentSortOption !== 'default') {
             clearFiltersBtn.classList.remove('hidden');
         } else {
             clearFiltersBtn.classList.add('hidden');
@@ -329,9 +447,87 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function performSearch(songs) {
+    // New function to handle both filtering and sorting
+    function filterAndSortSongs(songs) {
         const filteredSongs = filterSongs(songs);
-        displaySongs(filteredSongs);
+        return sortSongs(filteredSongs);
+    }
+    
+    // New function to sort songs based on selected option
+    function sortSongs(songs) {        
+        if (currentSortOption === 'default') {
+            return songs; // Return songs in original order
+        }
+        
+        const sortedSongs = [...songs]; // Create a copy to sort
+        
+        switch (currentSortOption) {
+            case 'title-asc':
+                sortedSongs.sort((a, b) => {
+                    const titleA = a['歌曲'] || '';
+                    const titleB = b['歌曲'] || '';
+                    return titleA.localeCompare(titleB, 'zh');
+                });
+                break;
+                
+            case 'title-desc':
+                sortedSongs.sort((a, b) => {
+                    const titleA = a['歌曲'] || '';
+                    const titleB = b['歌曲'] || '';
+                    return titleB.localeCompare(titleA, 'zh');
+                });
+                break;
+                
+            case 'artist-asc':
+                sortedSongs.sort((a, b) => {
+                    const artistA = a['歌手'] || '';
+                    const artistB = b['歌手'] || '';
+                    return artistA.localeCompare(artistB, 'zh');
+                });
+                break;
+                
+            case 'artist-desc':
+                sortedSongs.sort((a, b) => {
+                    const artistA = a['歌手'] || '';
+                    const artistB = b['歌手'] || '';
+                    return artistB.localeCompare(artistA, 'zh');
+                });
+                break;
+                
+            case 'year-asc':
+                sortedSongs.sort((a, b) => {
+                    const yearA = parseInt(a['年分'] || '0');
+                    const yearB = parseInt(b['年分'] || '0');
+                    return yearA - yearB;
+                });
+                break;
+                
+            case 'year-desc':
+                sortedSongs.sort((a, b) => {
+                    const yearA = parseInt(a['年分'] || '0');
+                    const yearB = parseInt(b['年分'] || '0');
+                    return yearB - yearA;
+                });
+                break;
+        }
+        
+        return sortedSongs;
+    }
+    
+    function performSearch(originalSongs) {
+        const filteredAndSortedSongs = filterAndSortSongs(originalSongs);
+        displaySongs(filteredAndSortedSongs);
+        
+        // Show sort info in results count if sorting is active
+        if (currentSortOption !== 'default') {
+            // Find the text of the selected sort option
+            const sortOptionElement = document.querySelector(`.sort-popup-option[data-sort="${currentSortOption}"]`);
+            if (sortOptionElement) {
+                const sortText = sortOptionElement.querySelector('span').textContent;
+                const resultsCount = document.getElementById('resultsCount');
+                resultsCount.textContent = `${filteredAndSortedSongs.length} 首 (${sortText})`;
+            }
+        }
         
         // Scroll to the top of the page after filtering
         window.scrollTo({
@@ -354,7 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         noResults.classList.add('hidden');
-        resultsCount.textContent = `显示 ${songs.length} 首歌曲`;
+        resultsCount.textContent = ` ${songs.length} 首`;
         
         // Generate colors for cards based on song genre
         const genreColors = {

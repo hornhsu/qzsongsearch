@@ -10,8 +10,15 @@
 <body>
     <div class="container">
         <header>
-            <h1>音乐探索</h1>
-            <p>寻找你喜爱的歌曲</p>
+            <h1>昭子小曲库</h1>
+            <div class="theme-switch-container">
+                <i class="fas fa-sun theme-icon"></i>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <i class="fas fa-moon theme-icon"></i>
+            </div>
         </header>
         
         <div class="search-container">
@@ -33,6 +40,7 @@
                     <option value="all">所有歌手</option>
                     <!-- Will be populated by JavaScript -->
                 </select>
+                <!-- Sort dropdown removed from here -->
             </div>
         </div>
         
@@ -45,17 +53,13 @@
             </div>
             <div class="view-controls">
                 <div class="view-toggle">
+                    <button id="sortButton" class="sort-button">
+                        <i class="fas fa-sort"></i>
+                    </button>
                     <button id="listView" class="active"><i class="fas fa-list"></i></button>
                     <button id="gridView"><i class="fas fa-th"></i></button>
                 </div>
-                <div class="theme-switch-container">
-                    <i class="fas fa-sun theme-icon"></i>
-                    <label class="theme-switch">
-                        <input type="checkbox" id="themeToggle">
-                        <span class="slider"></span>
-                    </label>
-                    <i class="fas fa-moon theme-icon"></i>
-                </div>
+                <!-- 原主题切换组件已移除 -->
             </div>
         </div>
         
@@ -66,6 +70,41 @@
         <div id="noResults" class="hidden">
             <i class="fas fa-music"></i>
             <p>没有找到符合条件的歌曲</p>
+        </div>
+    </div>
+
+    <!-- Add sort popup container -->
+    <div id="sortPopup" class="sort-popup">
+        <div class="sort-popup-header">排序方式</div>
+        <div class="sort-popup-options">
+            <div class="sort-popup-option" data-sort="default">
+                <i class="fas fa-sort"></i>
+                <span>默认顺序</span>
+            </div>
+            <div class="sort-popup-option" data-sort="title-asc">
+                <i class="fas fa-sort-alpha-down"></i>
+                <span>歌名 (A-Z)</span>
+            </div>
+            <div class="sort-popup-option" data-sort="title-desc">
+                <i class="fas fa-sort-alpha-down-alt"></i>
+                <span>歌名 (Z-A)</span>
+            </div>
+            <div class="sort-popup-option" data-sort="artist-asc">
+                <i class="fas fa-sort-alpha-down"></i>
+                <span>歌手 (A-Z)</span>
+            </div>
+            <div class="sort-popup-option" data-sort="artist-desc">
+                <i class="fas fa-sort-alpha-down-alt"></i>
+                <span>歌手 (Z-A)</span>
+            </div>
+            <div class="sort-popup-option" data-sort="year-desc">
+                <i class="fas fa-sort-numeric-down-alt"></i>
+                <span>年份 (最新)</span>
+            </div>
+            <div class="sort-popup-option" data-sort="year-asc">
+                <i class="fas fa-sort-numeric-down"></i>
+                <span>年份 (最早)</span>
+            </div>
         </div>
     </div>
 
