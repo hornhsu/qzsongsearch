@@ -45,10 +45,27 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
     transition: background-color 0.3s ease, color 0.3s ease;
+    
+    /* Light theme gradient background */
+    background: 
+        linear-gradient(135deg, rgba(108, 92, 231, 0.2) 0%, rgba(253, 121, 168, 0.2) 100%),
+        radial-gradient(circle at top left, rgba(162, 155, 254, 0.25) 0%, transparent 70%),
+        radial-gradient(circle at bottom right, rgba(253, 121, 168, 0.25) 0%, transparent 70%),
+        var(--background-color);
+    background-attachment: fixed;
+}
+
+/* Dark theme background */
+[data-theme="dark"] body {
+    background: 
+        linear-gradient(135deg, rgba(159, 148, 255, 0.3) 0%, rgba(255, 121, 172, 0.25) 100%),
+        radial-gradient(circle at top right, rgba(180, 174, 255, 0.35) 0%, transparent 80%),
+        radial-gradient(circle at bottom left, rgba(255, 121, 172, 0.3) 0%, transparent 80%),
+        var(--background-color);
+    background-attachment: fixed;
 }
 
 .container {
@@ -218,18 +235,34 @@ header p {
 }
 
 .song-card {
-    background-color: var(--card-bg);
+    background-color: rgba(249, 249, 249, 0.5); /* Light theme semi-transparent background - closer to background color */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05), 0 1px 8px rgba(0, 0, 0, 0.04);
     transition: var(--transition);
     position: relative;
     cursor: pointer;
+    border: 0px solid rgba(255, 255, 255, 0.1);
 }
 
 .song-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.06);
+    background-color: rgba(249, 249, 249, 0.8); /* Slightly less transparent on hover */
+}
+
+/* Dark theme card styles */
+[data-theme="dark"] .song-card {
+    background-color: rgba(26, 26, 46, 0.5); /* Dark theme semi-transparent background - closer to background color */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14), 0 1px 8px rgba(0, 0, 0, 0.1);
+    border: 0px solid rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .song-card:hover {
+    background-color: rgba(26, 26, 46, 0.7); /* Slightly less transparent on hover */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.12);
 }
 
 .song-card .card-image {
@@ -300,7 +333,9 @@ header p {
 /* Popup menu styles */
 .artist-popup {
     position: absolute;
-    background-color: var(--card-bg);
+    background-color: rgba(249, 249, 249, 0.85); /* Light theme semi-transparent popup - matches card */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     border-radius: 8px;
     box-shadow: var(--shadow);
     z-index: 100;
@@ -358,6 +393,11 @@ header p {
     font-size: 0.8rem;
     width: 16px;
     text-align: center;
+}
+
+/* Dark theme artist popup */
+[data-theme="dark"] .artist-popup {
+    background-color: rgba(26, 26, 46, 0.85); /* Dark theme semi-transparent popup - matches card */
 }
 
 /* List view */

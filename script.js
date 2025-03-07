@@ -332,6 +332,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function performSearch(songs) {
         const filteredSongs = filterSongs(songs);
         displaySongs(filteredSongs);
+        
+        // Scroll to the top of the page after filtering
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
     
     function displaySongs(songs) {
