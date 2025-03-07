@@ -1,4 +1,51 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Theme handling - detect system preference and apply theme
+    function initTheme() {
+        const themeToggle = document.getElementById('themeToggle');
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const storedTheme = localStorage.getItem('theme');
+        
+        // Set initial theme based on local storage or system preference
+        if (storedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        } else if (storedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeToggle.checked = false;
+        } else if (prefersDarkScheme.matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        }
+        
+        // Add event listener for theme toggle
+        themeToggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Listen for system preference changes
+        prefersDarkScheme.addEventListener('change', (e) => {
+            // If no user preference is stored, update according to system preference
+            if (!localStorage.getItem('theme')) {
+                if (e.matches) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.checked = true;
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    themeToggle.checked = false;
+                }
+            }
+        });
+    }
+
+    // Initialize theme
+    initTheme();
+    
     // Fetch CSV data from file
     fetch('songlist.csv')
         .then(response => {
