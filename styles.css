@@ -133,15 +133,15 @@ header p {
 
 .filter-options select {
     padding: 0.5rem .5rem;
-    border: 1px solid #ddd;
+    border: 0px solid #ddd;
     border-radius: 25px;
     outline: none;
     cursor: pointer;
     flex: 1;
     min-width: 100px;
     transition: var(--transition);
-    background-color: white;
-    
+    background-color: rgba(255, 255, 255, 0.5);
+
     /* Add styling for custom dropdown arrow */
     padding-right: 30px; /* Increase right padding to make room for arrow */
     appearance: none; /* Remove default arrow */
@@ -159,7 +159,8 @@ header p {
 
 /* Fix dropdown arrow appearance in different theme */
 [data-theme="dark"] .filter-options select {
-    background-color: var(--card-bg);
+    /* background-color: var(--card-bg); */
+    background-color: rgba(26, 26, 46, .7);
     color: var(--text-color);
     border-color: var(--light-text);
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b3b3b3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -333,7 +334,7 @@ header p {
 /* Popup menu styles */
 .artist-popup {
     position: absolute;
-    background-color: rgba(249, 249, 249, 0.85); /* Light theme semi-transparent popup - matches card */
+    background-color: rgba(249, 249, 249, 0); /* Light theme semi-transparent popup - matches card */
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-radius: 8px;
@@ -397,7 +398,7 @@ header p {
 
 /* Dark theme artist popup */
 [data-theme="dark"] .artist-popup {
-    background-color: rgba(26, 26, 46, 0.85); /* Dark theme semi-transparent popup - matches card */
+    background-color: rgba(26, 26, 46, 0); /* Dark theme semi-transparent popup - matches card */
 }
 
 /* List view */
