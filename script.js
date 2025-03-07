@@ -46,6 +46,65 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme
     initTheme();
     
+    // Create popup element and add to body
+    const artistPopup = document.createElement('div');
+    artistPopup.className = 'artist-popup';
+    artistPopup.innerHTML = `
+        <div class="artist-popup-header"></div>
+        <div class="artist-popup-options">
+            <div class="artist-popup-option" id="filterByArtistOption">
+                <i class="fas fa-filter"></i>
+                <span>只显示此歌手歌曲</span>
+            </div>
+            <div class="artist-popup-option" id="copyArtistOption">
+                <i class="fas fa-copy"></i>
+                <span>复制歌手名称</span>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(artistPopup);
+    
+    // Close popup when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.artist-clickable') && !e.target.closest('.artist-popup')) {
+            artistPopup.classList.remove('show');
+        }
+    });
+    
+    // Add event listeners to popup options
+    document.getElementById('filterByArtistOption').addEventListener('click', function() {
+        const artistName = artistPopup.getAttribute('data-artist');
+        if (artistName) {
+            // Get the artist dropdown and set its value
+            const artistDropdown = document.getElementById('filterArtist');
+            artistDropdown.value = artistName;
+            
+            // Create a change event to trigger the filter
+            const event = new Event('change');
+            artistDropdown.dispatchEvent(event);
+            
+            // Show a tooltip notification
+            showFilterNotification(`已筛选: ${artistName}`);
+            
+            // Hide the popup
+            artistPopup.classList.remove('show');
+        }
+    });
+    
+    document.getElementById('copyArtistOption').addEventListener('click', function() {
+        const artistName = artistPopup.getAttribute('data-artist');
+        if (artistName) {
+            // Copy to clipboard
+            copyToClipboard(artistName);
+            
+            // Show notification
+            showCopyNotification(`已复制: ${artistName}`);
+            
+            // Hide the popup
+            artistPopup.classList.remove('show');
+        }
+    });
+    
     // Fetch CSV data from file
     fetch('songlist.csv')
         .then(response => {
@@ -69,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const noResults = document.getElementById('noResults');
             const gridViewBtn = document.getElementById('gridView');
             const listViewBtn = document.getElementById('listView');
+            const clearFiltersBtn = document.getElementById('clearFilters');
             
             // Populate filter dropdowns
             populateFilters(songs);
@@ -101,13 +161,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 gridViewBtn.classList.remove('active');
                 displaySongs(filterSongs(songs)); // Redisplay with current filters
             });
+            
+            // Add event listener to clear filters button
+            clearFiltersBtn.addEventListener('click', function() {
+                // Reset all filters
+                document.getElementById('searchInput').value = '';
+                document.getElementById('filterType').value = 'all';
+                document.getElementById('filterYear').value = 'all';
+                document.getElementById('filterArtist').value = 'all';
+                
+                // Hide the clear filters button
+                clearFiltersBtn.classList.add('hidden');
+                
+                // Perform search with cleared filters
+                performSearch(songs);
+                
+                // Show notification
+                showFilterNotification('已清除所有筛选条件');
+            });
         })
         .catch(error => {
             console.error('Error fetching or parsing CSV data:', error);
             document.getElementById('noResults').classList.remove('hidden');
             document.getElementById('noResults').innerHTML = `
                 <i class="fas fa-exclamation-triangle"></i>
-                <p>無法載入歌曲資料。請檢查網路連接或重新整理頁面。</p>
+                <p>无法加载歌曲数据。请检查网络连接或刷新页面。</p>
             `;
         });
     
@@ -173,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Populate genre filter
         const filterType = document.getElementById('filterType');
-        filterType.innerHTML = '<option value="all">所有類型</option>';
+        filterType.innerHTML = '<option value="all">所有类型</option>';
         Array.from(genres).sort().forEach(genre => {
             const option = document.createElement('option');
             option.value = genre;
@@ -183,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Populate decade filter
         const filterYear = document.getElementById('filterYear');
-        filterYear.innerHTML = '<option value="all">所有年代</option>';
+        filterYear.innerHTML = '<option value="all">所有年份</option>';
         Array.from(decades).sort((a, b) => b - a).forEach(decade => {
             const option = document.createElement('option');
             option.value = decade;
@@ -207,11 +285,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const filterType = document.getElementById('filterType');
         const filterYear = document.getElementById('filterYear');
         const filterArtist = document.getElementById('filterArtist');
+        const clearFiltersBtn = document.getElementById('clearFilters');
         
         const searchTerm = searchInput.value.toLowerCase();
         const selectedGenre = filterType.value;
         const selectedDecade = filterYear.value;
         const selectedArtist = filterArtist.value;
+        
+        // Show or hide the clear filters button based on whether any filters are active
+        if (searchTerm !== '' || selectedGenre !== 'all' || 
+            selectedDecade !== 'all' || selectedArtist !== 'all') {
+            clearFiltersBtn.classList.remove('hidden');
+        } else {
+            clearFiltersBtn.classList.add('hidden');
+        }
         
         return songs.filter(song => {
             // Search term matching with support for both field naming conventions
@@ -256,12 +343,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (songs.length === 0) {
             noResults.classList.remove('hidden');
-            resultsCount.textContent = '沒有找到符合條件的歌曲';
+            resultsCount.textContent = '没有找到符合条件的歌曲';
             return;
         }
         
         noResults.classList.add('hidden');
-        resultsCount.textContent = `顯示 ${songs.length} 首歌曲`;
+        resultsCount.textContent = `显示 ${songs.length} 首歌曲`;
         
         // Generate colors for cards based on song genre
         const genreColors = {
@@ -306,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="card-content">
                         <h3 class="song-title">${songTitle}</h3>
-                        <p class="song-artist">${artist}</p>
+                        <p class="song-artist artist-clickable" data-artist="${artist}">${artist}</p>
                         <div class="song-details">
                             <span>${year}</span>
                         </div>
@@ -327,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                         <div class="song-row">
-                            <p class="song-artist">${artist}</p>
+                            <p class="song-artist artist-clickable" data-artist="${artist}">${artist}</p>
                             <div class="song-meta-bottom">
                                 <span>${genre}</span>
                             </div>
@@ -338,8 +425,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             songContainer.appendChild(songCard);
             
-            // Add click event listener to copy song info
-            songCard.addEventListener('click', function() {
+            // Add click event listener to copy song info (on the entire card except artist name)
+            songCard.addEventListener('click', function(e) {
+                // Don't copy if clicking on the artist name
+                if (e.target.closest('.artist-clickable')) {
+                    return;
+                }
+                
                 const songTitle = song['歌曲'] || '';
                 const artist = song['歌手'] || '';
                 const textToCopy = `${songTitle} - ${artist}`;
@@ -350,6 +442,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show notification
                 showCopyNotification(textToCopy);
             });
+            
+            // Update the click event for the artist name
+            const artistElement = songCard.querySelector('.artist-clickable');
+            if (artistElement) {
+                artistElement.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent the card's click event from firing
+                    
+                    const clickedArtist = this.getAttribute('data-artist');
+                    const artistPopup = document.querySelector('.artist-popup');
+                    
+                    // Update popup content
+                    const popupHeader = artistPopup.querySelector('.artist-popup-header');
+                    popupHeader.textContent = clickedArtist;
+                    
+                    // Store the artist name as a data attribute
+                    artistPopup.setAttribute('data-artist', clickedArtist);
+                    
+                    // Position popup near the click
+                    const rect = this.getBoundingClientRect();
+                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                    
+                    // Check if there's enough space below
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    const popupHeight = 110; // Approximate height of popup
+                    
+                    if (spaceBelow < popupHeight) {
+                        // Position above if not enough space below
+                        artistPopup.style.top = `${rect.top + scrollTop - popupHeight - 5}px`;
+                    } else {
+                        // Position below
+                        artistPopup.style.top = `${rect.bottom + scrollTop + 5}px`;
+                    }
+                    
+                    artistPopup.style.left = `${rect.left}px`;
+                    
+                    // Show the popup
+                    artistPopup.classList.add('show');
+                });
+            }
         });
     }
     
@@ -377,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const textDisplay = document.getElementById('copiedTextDisplay');
         
         // Update the notification text
-        textDisplay.textContent = `已複製: ${text}`;
+        textDisplay.textContent = `已复制: ${text}`;
         
         // Show the notification
         notification.classList.add('show');
@@ -385,6 +516,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide the notification after 3 seconds
         setTimeout(() => {
             notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    // Function to show filter notification
+    function showFilterNotification(text) {
+        const notification = document.getElementById('copyNotification');
+        const textDisplay = document.getElementById('copiedTextDisplay');
+        
+        // Update the notification text
+        textDisplay.textContent = text;
+        
+        // Add filter icon
+        const icon = notification.querySelector('i');
+        if (icon) {
+            icon.className = 'fas fa-filter';
+        }
+        
+        // Show the notification
+        notification.classList.add('show');
+        
+        // Hide the notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            // Reset icon back to clipboard icon
+            if (icon) {
+                icon.className = 'fas fa-clipboard-check';
+            }
         }, 3000);
     }
 });

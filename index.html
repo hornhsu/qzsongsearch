@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歌曲搜尋庫</title>
+    <title>歌曲搜索库</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>音樂探索</h1>
-            <p>尋找你喜愛的歌曲</p>
+            <h1>音乐探索</h1>
+            <p>寻找你喜爱的歌曲</p>
         </header>
         
         <div class="search-container">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜尋歌曲、歌手或年份...">
+                <input type="text" id="searchInput" placeholder="搜索歌曲、歌手或年份...">
                 <button id="searchButton"><i class="fas fa-search"></i></button>
             </div>
             
             <div class="filter-options">
                 <select id="filterType">
-                    <option value="all">所有類型</option>
+                    <option value="all">所有类型</option>
                     <!-- Will be populated by JavaScript -->
                 </select>
                 <select id="filterYear">
@@ -37,7 +37,12 @@
         </div>
         
         <div class="results-info">
-            <p id="resultsCount">顯示全部歌曲</p>
+            <div class="results-count-container">
+                <p id="resultsCount">显示全部歌曲</p>
+                <button id="clearFilters" class="clear-filters-btn hidden">
+                    <i class="fas fa-times-circle"></i> 清除筛选
+                </button>
+            </div>
             <div class="view-controls">
                 <div class="view-toggle">
                     <button id="listView" class="active"><i class="fas fa-list"></i></button>
@@ -60,7 +65,7 @@
         
         <div id="noResults" class="hidden">
             <i class="fas fa-music"></i>
-            <p>沒有找到符合條件的歌曲</p>
+            <p>没有找到符合条件的歌曲</p>
         </div>
     </div>
 
@@ -71,7 +76,7 @@
     </div>
 
     <footer>
-        <p>© 2025 音樂探索 | 歌曲搜尋庫</p>
+        <p>© 2025 音乐探索 | 歌曲搜索库</p>
     </footer>
     
     <script src="script.js"></script>
