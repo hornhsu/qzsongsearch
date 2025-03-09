@@ -775,6 +775,7 @@ input:checked + .slider:before {
 }
 
 .multi-select-option {
+    font-size: 1.1rem;
     padding: 8px 15px;
     cursor: pointer;
     display: flex;
