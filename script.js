@@ -271,10 +271,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            filterType.addEventListener('change', () => performSearch(originalSongs));
-            filterYear.addEventListener('change', () => performSearch(originalSongs));
-            filterArtist.addEventListener('change', () => performSearch(originalSongs));
-            // Remove event listener for non-existent sortOptions element
+            // Convert standard select elements to multi-select 
+            setupMultiSelect('filterType');
+            setupMultiSelect('filterYear');
+            setupMultiSelect('filterArtist');
             
             gridViewBtn.addEventListener('click', function() {
                 songContainer.className = 'grid-view';
@@ -292,12 +292,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add event listener to clear filters button
             clearFiltersBtn.addEventListener('click', function() {
-                // Reset all filters
+                // Reset search input
                 document.getElementById('searchInput').value = '';
-                document.getElementById('filterType').value = 'all';
-                document.getElementById('filterYear').value = 'all';
-                document.getElementById('filterArtist').value = 'all';
-                // Remove reference to sortOptions element
+                
+                // Reset multi-select filters
+                resetMultiSelect('filterType');
+                resetMultiSelect('filterYear');
+                resetMultiSelect('filterArtist');
                 
                 // Reset sorting to default
                 currentSortOption = 'default';
@@ -416,20 +417,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function filterSongs(songs) {
         const searchInput = document.getElementById('searchInput');
-        const filterType = document.getElementById('filterType');
-        const filterYear = document.getElementById('filterYear');
-        const filterArtist = document.getElementById('filterArtist');
+        const filterTypeInput = document.getElementById('filterType'); // Now a hidden input
+        const filterYearInput = document.getElementById('filterYear'); // Now a hidden input
+        const filterArtistInput = document.getElementById('filterArtist'); // Now a hidden input
         const clearFiltersBtn = document.getElementById('clearFilters');
         
         const searchTerm = searchInput.value.toLowerCase();
-        const selectedGenre = filterType.value;
-        const selectedDecade = filterYear.value;
-        const selectedArtist = filterArtist.value;
-        // Use currentSortOption instead of accessing the DOM element
+        const selectedTypes = filterTypeInput.value.split(',');
+        const selectedYears = filterYearInput.value.split(',');
+        const selectedArtists = filterArtistInput.value.split(',');
         
         // Show or hide the clear filters button based on whether any filters are active
-        if (searchTerm !== '' || selectedGenre !== 'all' || 
-            selectedDecade !== 'all' || selectedArtist !== 'all' ||
+        if (searchTerm !== '' || 
+            !selectedTypes.includes('all') || 
+            !selectedYears.includes('all') || 
+            !selectedArtists.includes('all') ||
             currentSortOption !== 'default') {
             clearFiltersBtn.classList.remove('hidden');
         } else {
@@ -449,19 +451,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 (year && year.includes(searchTerm)) ||
                 (genre && genre.toLowerCase().includes(searchTerm));
             
-            // Genre filter with support for both field naming conventions
-            const matchesGenre = selectedGenre === 'all' || 
-                (genre && genre.includes(selectedGenre));
+            // Genre filter with support for multi-select
+            const matchesGenre = selectedTypes.includes('all') || 
+                (genre && selectedTypes.some(type => genre.includes(type)));
             
-            // Decade filter
-            const matchesDecade = selectedDecade === 'all' || 
-                (parseInt(year) >= parseInt(selectedDecade) && 
-                parseInt(year) < parseInt(selectedDecade) + 10);
+            // Year filter with support for multi-select
+            const matchesYear = selectedYears.includes('all') || 
+                selectedYears.some(decadeStr => {
+                    const decade = parseInt(decadeStr);
+                    return parseInt(year) >= decade && parseInt(year) < decade + 10;
+                });
             
-            // Artist filter
-            const matchesArtist = selectedArtist === 'all' || artist === selectedArtist;
+            // Artist filter with support for multi-select
+            const matchesArtist = selectedArtists.includes('all') || selectedArtists.includes(artist);
             
-            return matchesSearch && matchesGenre && matchesDecade && matchesArtist;
+            return matchesSearch && matchesGenre && matchesYear && matchesArtist;
         });
     }
     
@@ -765,4 +769,227 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 3000);
     }
+    
+    // Functions for multi-select implementation
+    function setupMultiSelect(filterId) {
+        const originalSelect = document.getElementById(filterId);
+        if (!originalSelect) return;
+        
+        // Create container
+        const container = document.createElement('div');
+        container.className = 'multi-select-container';
+        container.id = `${filterId}Container`;
+        
+        // Create header
+        const header = document.createElement('div');
+        header.className = 'multi-select-header';
+        header.innerHTML = `
+            <span>所有${getFilterLabel(filterId)}</span>
+            <i class="fas fa-chevron-down"></i>
+        `;
+        
+        // Create dropdown
+        const dropdown = document.createElement('div');
+        dropdown.className = 'multi-select-dropdown';
+        
+        // Add search box for artist filter (since it can have many options)
+        if (filterId === 'filterArtist') {
+            const search = document.createElement('input');
+            search.type = 'text';
+            search.className = 'multi-select-search';
+            search.placeholder = '搜索歌手...';
+            search.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const options = dropdown.querySelectorAll('.multi-select-option:not(.all-option)');
+                
+                options.forEach(option => {
+                    const text = option.querySelector('span').textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        option.style.display = 'flex';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            });
+            dropdown.appendChild(search);
+        }
+        
+        // Create "All" option
+        const allOption = document.createElement('div');
+        allOption.className = 'multi-select-option all-option selected';
+        allOption.setAttribute('data-value', 'all');
+        allOption.innerHTML = `
+            <span>所有${getFilterLabel(filterId)}</span>
+            <i class="fas fa-check"></i>
+        `;
+        dropdown.appendChild(allOption);
+        
+        // Create options from original select
+        Array.from(originalSelect.options).forEach(option => {
+            if (option.value === 'all') return; // Skip the "all" option
+            
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'multi-select-option';
+            optionDiv.setAttribute('data-value', option.value);
+            optionDiv.innerHTML = `
+                <span>${option.textContent}</span>
+                <i class="fas fa-check"></i>
+            `;
+            dropdown.appendChild(optionDiv);
+        });
+        
+        // Add click events
+        header.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleDropdown(filterId);
+        });
+        
+        dropdown.querySelectorAll('.multi-select-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleOption(this, filterId);
+                updateFilterDisplay(filterId);
+                performSearch(window.originalSongs);
+            });
+        });
+        
+        // Add components
+        container.appendChild(header);
+        container.appendChild(dropdown);
+        
+        // Replace original select
+        originalSelect.parentNode.replaceChild(container, originalSelect);
+        
+        // Create hidden input to store values
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.id = filterId;
+        hiddenInput.value = 'all';
+        document.body.appendChild(hiddenInput);
+    }
+    
+    function toggleDropdown(filterId) {
+        // Close all other dropdowns
+        document.querySelectorAll('.multi-select-dropdown').forEach(dropdown => {
+            if (dropdown.parentNode.id !== `${filterId}Container` && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                const icon = dropdown.parentNode.querySelector('.multi-select-header i');
+                icon.className = 'fas fa-chevron-down';
+            }
+        });
+        
+        // Toggle current dropdown
+        const container = document.getElementById(`${filterId}Container`);
+        const dropdown = container.querySelector('.multi-select-dropdown');
+        const icon = container.querySelector('.multi-select-header i');
+        
+        dropdown.classList.toggle('show');
+        
+        if (dropdown.classList.contains('show')) {
+            icon.className = 'fas fa-chevron-up';
+            
+            // Focus search if it exists
+            const search = dropdown.querySelector('.multi-select-search');
+            if (search) {
+                setTimeout(() => search.focus(), 50);
+            }
+        } else {
+            icon.className = 'fas fa-chevron-down';
+        }
+    }
+    
+    function toggleOption(option, filterId) {
+        const allOption = option.parentNode.querySelector('.all-option');
+        const isAllOption = option.classList.contains('all-option');
+        const hiddenInput = document.getElementById(filterId);
+        
+        if (isAllOption) {
+            // Select only "All" option
+            option.parentNode.querySelectorAll('.multi-select-option').forEach(opt => {
+                if (opt === allOption) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+            hiddenInput.value = 'all';
+            return;
+        }
+        
+        // Toggle clicked option
+        option.classList.toggle('selected');
+        
+        // Check if any specific options are selected
+        const selectedOptions = Array.from(option.parentNode.querySelectorAll('.multi-select-option:not(.all-option).selected'));
+        
+        if (selectedOptions.length === 0) {
+            // If no specific options, select "All"
+            allOption.classList.add('selected');
+            hiddenInput.value = 'all';
+        } else {
+            // If specific options selected, deselect "All"
+            allOption.classList.remove('selected');
+            // Update hidden input value
+            hiddenInput.value = selectedOptions
+                .map(opt => opt.getAttribute('data-value'))
+                .join(',');
+        }
+    }
+    
+    function updateFilterDisplay(filterId) {
+        const container = document.getElementById(`${filterId}Container`);
+        const headerText = container.querySelector('.multi-select-header span');
+        const selectedOptions = container.querySelectorAll('.multi-select-option.selected');
+        const allOption = container.querySelector('.all-option');
+        
+        if (allOption.classList.contains('selected')) {
+            headerText.textContent = `所有${getFilterLabel(filterId)}`;
+        } else {
+            headerText.textContent = `已选 ${selectedOptions.length} 项`;
+        }
+    }
+    
+    function resetMultiSelect(filterId) {
+        const container = document.getElementById(`${filterId}Container`);
+        if (!container) return;
+        
+        const allOption = container.querySelector('.all-option');
+        const headerText = container.querySelector('.multi-select-header span');
+        const hiddenInput = document.getElementById(filterId);
+        
+        // Select only "All" option
+        container.querySelectorAll('.multi-select-option').forEach(opt => {
+            if (opt === allOption) {
+                opt.classList.add('selected');
+            } else {
+                opt.classList.remove('selected');
+            }
+        });
+        
+        // Reset header text
+        headerText.textContent = `所有${getFilterLabel(filterId)}`;
+        
+        // Reset hidden input
+        hiddenInput.value = 'all';
+    }
+    
+    function getFilterLabel(filterId) {
+        switch(filterId) {
+            case 'filterType': return '类型';
+            case 'filterYear': return '年份';
+            case 'filterArtist': return '歌手';
+            default: return '';
+        }
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.multi-select-dropdown').forEach(dropdown => {
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                const icon = dropdown.parentNode.querySelector('.multi-select-header i');
+                icon.className = 'fas fa-chevron-down';
+            }
+        });
+    });
 });
