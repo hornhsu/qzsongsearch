@@ -209,6 +209,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Add debounce function to delay search execution
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
+
     // Fetch CSV data from file
     fetch('songlist.csv')
         .then(response => {
@@ -245,8 +255,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Initial display of all songs
             displaySongs(songs);
             
+            // Create debounced search function with 300ms delay
+            const debouncedSearch = debounce(() => performSearch(originalSongs), 300);
+            
             // Add event listeners
             searchButton.addEventListener('click', () => performSearch(originalSongs));
+            
+            // Add real-time search on input
+            searchInput.addEventListener('input', debouncedSearch);
+            
+            // Keep the keyup event for Enter key
             searchInput.addEventListener('keyup', function(event) {
                 if (event.key === 'Enter') {
                     performSearch(originalSongs);

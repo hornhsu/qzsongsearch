@@ -815,12 +815,12 @@ input:checked + .slider:before {
     
     .song-card .song-title {
         font-size: 0.9rem;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0rem;
     }
     
     .song-card .song-artist {
         font-size: 0.8rem;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0rem;
     }
     
     .song-card .song-details {
