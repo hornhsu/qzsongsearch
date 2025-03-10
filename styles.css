@@ -266,7 +266,7 @@ header p {
     background-color: rgba(249, 249, 249, 0.5); /* Light theme semi-transparent background - closer to background color */
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05), 0 1px 8px rgba(0, 0, 0, 0.04);
     transition: var(--transition);
@@ -1295,7 +1295,7 @@ input:checked + .slider:before {
 .random-song-container {
     margin: 1rem auto 1.5rem;  /* 縮減上下邊距 */
     position: relative;
-    border-radius: 12px;
+    border-radius: 20px;
     overflow: hidden;
     animation: fadeInScale 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
     max-width: 600px;  /* 縮減最大寬度 */
@@ -1319,8 +1319,8 @@ input:checked + .slider:before {
     -webkit-backdrop-filter: blur(20px);
     border: none;
     box-shadow: none;
-    border-radius: 10px;
-  padding: 0;
+    border-radius: 20px;
+    padding: 0;
     height: auto;
     display: block;
     transform: none;
