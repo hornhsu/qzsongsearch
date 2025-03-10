@@ -11,6 +11,8 @@
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
     --primary-color-rgb: 108, 92, 231;
+    --background-color-rgb: 249, 249, 249;
+    --card-bg-rgb: 255, 255, 255;
 }
 
 /* Dark theme */
@@ -25,6 +27,8 @@
     --accent-color: #ff79ac;
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     --primary-color-rgb: 159, 148, 255;
+    --background-color-rgb: 26, 26, 46;
+    --card-bg-rgb: 37, 37, 65;
 }
 
 /* Apply dark theme automatically if system preference is dark */
@@ -1201,11 +1205,13 @@ input:checked + .slider:before {
 .random-song-container {
     margin: 1rem auto 1.5rem;  /* 縮減上下邊距 */
     position: relative;
-    border-radius: 12px;
+    border-radius: 20px; /* Match the border-radius with the song card */
     overflow: hidden;
     animation: fadeInScale 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
     max-width: 600px;  /* 縮減最大寬度 */
     box-shadow: 0 15px 30px -12px rgba(var(--primary-color-rgb), 0.25);
+    /* Add background to prevent corner artifacts */
+    background-color: transparent; 
 }
 
 /* Close button for random song */
@@ -1240,142 +1246,53 @@ input:checked + .slider:before {
 
 /* Unified card style for random song */
 .random-song-container .song-card {
-    background-color: rgba(var(--primary-color-rgb), 0.15);
-    border: 2px solid var(--primary-color);
-    margin: 0;
-    box-shadow: 0 8px 20px rgba(var(--primary-color-rgb), 0.15);
-    /* Force consistent styling */
-    display: flex;
-    flex-direction: row;
-    height: 80px;
-    padding-bottom: 0;
-    transform: none;
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--accent-color-rgb), 0.12) 100%);
+    -webkit-backdrop-filter: blur(20px); /* Ensure -webkit prefix is added */
+    backdrop-filter: blur(20px);
+    border: none;
+    box-shadow: none;
+    border-radius: 20px; /* Ensure same radius as container */
+    padding: 0;
+    height: auto;
+    display: block;
+    transform: none !important;
+    /* Ensure the card itself has background color to prevent artifacts */
+    background-color: rgba(var(--background-color-rgb), 0.5);
+    /* Prevent corner artifacts */
+    overflow: hidden;
+    isolation: isolate; /* Create a new stacking context */
 }
 
 [data-theme="dark"] .random-song-container .song-card {
-    background-color: rgba(var(--primary-color-rgb), 0.25);
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.2) 0%, rgba(var(--accent-color-rgb), 0.25) 100%);
+    /* Add background color to prevent artifacts */
+    background-color: rgba(37, 37, 65, 0.7);
 }
 
-.random-song-container .song-card:hover {
-    transform: none;
-    background-color: rgba(var(--primary-color-rgb), 0.2);
-}
-
-[data-theme="dark"] .random-song-container .song-card:hover {
-    background-color: rgba(var(--primary-color-rgb), 0.3);
-}
-
-/* Force list-like layout for card content */
-.random-song-container .song-card .card-image {
-    width: 80px;  /* 縮小專輯封面 */
-    height: 80px;
-    flex-shrink: 0;
+/* 隨機歌曲頭部區域 */
+.random-header {
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 0.7rem 1.2rem;  /* 縮減內邊距 */
     display: flex;
+    justify-content: space-between; /* 確保標題和關閉按鈕分別在兩端 */
     align-items: center;
-    justify-content: center;
+    /* Ensure no corner artifacts */
+    border-radius: 20px 20px 0 0; /* Round top corners only */
+    position: relative;
+    z-index: 2; /* Ensure it's above other elements */
 }
 
-.random-song-container .song-card .card-content {
+/* 歌曲內容區 */
+.random-content {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex-grow: 1;
-    padding: 0.6rem 1.2rem;
-    gap: 0.3rem;
-}
-
-.random-song-container .song-card .song-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    line-height: normal;
-    max-height: none;
-    line-clamp: initial;
-    -webkit-line-clamp: initial;
-    display: block;
-}
-
-.random-song-container .song-card .song-artist {
-    font-size: 0.9rem;
-    margin-bottom: 0.3rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-.random-song-container .song-card .song-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--light-text);
-}
-
-/* Hide grid-specific elements */
-.random-song-container .song-card .song-genre,
-.random-song-container .song-card .song-details {
-    display: none;
-}
-
-/* Random selected song container - improved layout */
-.random-song-container .song-card .card-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex-grow: 1;
-    padding: 0.6rem 1.2rem;
-    gap: 0.3rem;
-}
-
-.random-song-container .song-card .song-row {
-    display: flex;
-    justify-content: space-between;
+    padding: 1rem 1.2rem;  /* 縮減內邊距 */
+    gap: 1rem;  /* 縮減元素間距 */
     align-items: center;
-    width: 100%;
-}
-
-.random-song-container .song-card .song-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 80%;
-    line-height: normal;
-    line-clamp: initial;
-    -webkit-line-clamp: initial;
-    display: block;
-}
-
-.random-song-container .song-card .song-year {
-    font-size: 0.9rem;
-    color: var(--light-text);
-    flex-shrink: 0;
-    padding-left: 10px;
-}
-
-.random-song-container .song-card .song-artist {
-    font-size: 0.9rem;
-    margin-bottom: 0.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-}
-
-.random-song-container .song-card .song-genre-tag {
-    font-size: 0.8rem;
-    color: var(--light-text);
-}
-
-/* Hide previously used song-info div */
-.random-song-container .song-card .song-info {
-    display: none;
+    /* Ensure background matches the container */
+    background-color: transparent;
+    position: relative;
+    z-index: 1;
 }
 
 /* 隨機歌曲卡片 - 全新設計 */
@@ -1410,7 +1327,7 @@ input:checked + .slider:before {
     padding: 0;
     height: auto;
     display: block;
-    transform: none !important;
+    transform: none;
 }
 
 [data-theme="dark"] .random-song-container .song-card {
@@ -1564,5 +1481,49 @@ input:checked + .slider:before {
     
     .random-song-meta {
         justify-content: flex-start;
+    }
+}
+
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+    .random-song-container {
+        /* Prevent content from overflowing on mobile */
+        overflow: hidden;
+        /* Use a solid background color on mobile */
+        background-color: transparent;
+    }
+    
+    /* Ensure smooth animation on mobile */
+    @keyframes fadeInScale {
+        0% {
+            opacity: 0;
+            transform: scale(0.98) translateY(-8px);
+            border-radius: 20px;
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            border-radius: 20px;
+        }
+    }
+    
+    /* Add specific fix for iOS devices */
+    @supports (-webkit-touch-callout: none) {
+        .random-song-container {
+            /* Hardware acceleration for iOS */
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+        
+        .random-song-container .song-card {
+            /* Disable backdrop-filter on iOS to prevent rendering artifacts */
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background-color: rgba(var(--card-bg-rgb), 0.8);
+        }
+        
+        [data-theme="dark"] .random-song-container .song-card {
+            background-color: rgba(var(--card-bg-rgb), 0.8);
+        }
     }
 }
