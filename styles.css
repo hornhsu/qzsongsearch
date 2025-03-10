@@ -266,7 +266,7 @@ header p {
     background-color: rgba(249, 249, 249, 0.5); /* Light theme semi-transparent background - closer to background color */
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    border-radius: 20px;
+    border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05), 0 1px 8px rgba(0, 0, 0, 0.04);
     transition: var(--transition);
@@ -1201,7 +1201,7 @@ input:checked + .slider:before {
 .random-song-container {
     margin: 1rem auto 1.5rem;  /* 縮減上下邊距 */
     position: relative;
-    border-radius: 20px; /* Match the border-radius with the song card */
+    border-radius: 15px; /* Match the border-radius with the song card */
     overflow: hidden;
     animation: fadeInScale 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
     max-width: 600px;  /* 縮減最大寬度 */
@@ -1247,7 +1247,7 @@ input:checked + .slider:before {
     backdrop-filter: blur(20px);
     border: none;
     box-shadow: none;
-    border-radius: 20px; /* Ensure same radius as container */
+    border-radius: 15px; /* Ensure same radius as container */
     padding: 0;
     height: auto;
     display: block;
@@ -1274,7 +1274,7 @@ input:checked + .slider:before {
     justify-content: space-between; /* 確保標題和關閉按鈕分別在兩端 */
     align-items: center;
     /* Ensure no corner artifacts */
-    border-radius: 20px 20px 0 0; /* Round top corners only */
+    border-radius: 15px 15px 0 0; /* Round top corners only */
     position: relative;
     z-index: 2; /* Ensure it's above other elements */
 }
@@ -1295,7 +1295,7 @@ input:checked + .slider:before {
 .random-song-container {
     margin: 1rem auto 1.5rem;  /* 縮減上下邊距 */
     position: relative;
-    border-radius: 20px;
+    border-radius: 15px;
     overflow: hidden;
     animation: fadeInScale 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
     max-width: 600px;  /* 縮減最大寬度 */
@@ -1319,7 +1319,7 @@ input:checked + .slider:before {
     -webkit-backdrop-filter: blur(20px);
     border: none;
     box-shadow: none;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 0;
     height: auto;
     display: block;
@@ -1431,27 +1431,6 @@ input:checked + .slider:before {
     padding: 0 1.2rem 1rem;  /* 縮減內邊距 */
 }
 
-.random-shuffle-btn {
-    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-    color: white;
-    border: none;
-    border-radius: 30px;
-    padding: 0.5rem 1.2rem;  /* 縮減按鈕大小 */
-    font-size: 0.9rem;  /* 縮小按鈕文字 */
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 10px 25px rgba(var(--primary-color-rgb), 0.3);
-}
-
-.random-shuffle-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(var(--primary-color-rgb), 0.4);
-}
-
 /* 移動裝置適配 */
 @media (max-width: 768px) {
     .random-content {
@@ -1494,12 +1473,12 @@ input:checked + .slider:before {
         0% {
             opacity: 0;
             transform: scale(0.98) translateY(-8px);
-            border-radius: 20px;
+            border-radius: 15px;
         }
         100% {
             opacity: 1;
             transform: scale(1) translateY(0);
-            border-radius: 20px;
+            border-radius: 15px;
         }
     }
     
