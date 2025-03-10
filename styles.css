@@ -11,8 +11,6 @@
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
     --primary-color-rgb: 108, 92, 231;
-    --background-color-rgb: 249, 249, 249;
-    --card-bg-rgb: 255, 255, 255;
 }
 
 /* Dark theme */
@@ -27,8 +25,6 @@
     --accent-color: #ff79ac;
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     --primary-color-rgb: 159, 148, 255;
-    --background-color-rgb: 26, 26, 46;
-    --card-bg-rgb: 37, 37, 65;
 }
 
 /* Apply dark theme automatically if system preference is dark */
@@ -1211,7 +1207,7 @@ input:checked + .slider:before {
     max-width: 600px;  /* 縮減最大寬度 */
     box-shadow: 0 15px 30px -12px rgba(var(--primary-color-rgb), 0.25);
     /* Add background to prevent corner artifacts */
-    background-color: transparent; 
+    background-color: var(--card-bg); 
 }
 
 /* Close button for random song */
@@ -1257,7 +1253,7 @@ input:checked + .slider:before {
     display: block;
     transform: none !important;
     /* Ensure the card itself has background color to prevent artifacts */
-    background-color: rgba(var(--background-color-rgb), 0.5);
+    background-color: var(--card-bg);
     /* Prevent corner artifacts */
     overflow: hidden;
     isolation: isolate; /* Create a new stacking context */
@@ -1266,7 +1262,7 @@ input:checked + .slider:before {
 [data-theme="dark"] .random-song-container .song-card {
     background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.2) 0%, rgba(var(--accent-color-rgb), 0.25) 100%);
     /* Add background color to prevent artifacts */
-    background-color: rgba(37, 37, 65, 0.7);
+    background-color: var(--card-bg);
 }
 
 /* 隨機歌曲頭部區域 */
@@ -1290,7 +1286,7 @@ input:checked + .slider:before {
     gap: 1rem;  /* 縮減元素間距 */
     align-items: center;
     /* Ensure background matches the container */
-    background-color: transparent;
+    background-color: var(--card-bg);
     position: relative;
     z-index: 1;
 }
@@ -1324,7 +1320,7 @@ input:checked + .slider:before {
     border: none;
     box-shadow: none;
     border-radius: 10px;
-    padding: 0;
+  padding: 0;
     height: auto;
     display: block;
     transform: none;
@@ -1490,7 +1486,7 @@ input:checked + .slider:before {
         /* Prevent content from overflowing on mobile */
         overflow: hidden;
         /* Use a solid background color on mobile */
-        background-color: transparent;
+        background-color: var(--card-bg);
     }
     
     /* Ensure smooth animation on mobile */
@@ -1517,13 +1513,9 @@ input:checked + .slider:before {
         
         .random-song-container .song-card {
             /* Disable backdrop-filter on iOS to prevent rendering artifacts */
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            background-color: rgba(var(--card-bg-rgb), 0.8);
-        }
-        
-        [data-theme="dark"] .random-song-container .song-card {
-            background-color: rgba(var(--card-bg-rgb), 0.8);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+            background-color: var(--card-bg);
         }
     }
 }
