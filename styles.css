@@ -257,8 +257,8 @@ header p {
 /* Grid view */
 .grid-view {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
     margin-bottom: 2rem;
 }
 
@@ -273,6 +273,8 @@ header p {
     position: relative;
     cursor: pointer;
     border: 0px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .song-card:hover {
@@ -293,32 +295,167 @@ header p {
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.12);
 }
 
+/* Grid-specific card styles */
+.grid-view .song-card {
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Ensure relative positioning for absolute children */
+    padding-bottom: 20px; /* Add some padding at bottom to accommodate the genre tag */
+}
+
+.grid-view .card-image {
+    height: 10px; /* Reduced from 60px to 10px */
+    /* Remove display flex, align-items, justify-content since we won't have an icon */
+}
+
+.grid-view .card-content {
+    padding: 0.6rem;
+    flex: 1;
+}
+
+.grid-view .song-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    /* Cross-browser text truncation */
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    max-height: 2.4em; /* fallback for non-webkit browsers */
+}
+
+.grid-view .song-artist {
+    font-size: 0.75rem;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.grid-view .song-details {
+    font-size: 0.7rem;
+}
+
+/* Common card elements */
 .song-card .card-image {
-    height: 100px;
-    background-color: var(--secondary-color);
+    background-color: transparent; /* Changed from var(--secondary-color) */
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--text-color); /* Default color */
+}
+
+.song-card .card-image i {
+    font-size: 2.2rem; /* Make the music icon larger */
+    transition: var(--transition);
+}
+
+/* Remove genre-specific styles */
+.song-card .song-genre {
     color: white;
-    font-size: 2.5rem;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    position: absolute;
+    bottom: 10px; /* Position at bottom */
+    right: 10px; /* Position at right */
+    z-index: 5; /* Ensure it appears above other elements */
+    max-width: 90%; /* Prevent from being too wide */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* List view - restore original styles */
+.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+}
+
+.list-view .song-card {
+    display: flex;
+    height: 75px;
+    align-items: center;
+    flex-direction: row; /* Ensure horizontal layout */
+}
+
+.list-view .card-image {
+    width: 75px;
+    height: 75px;
+    flex-shrink: 0;
+    font-size: 2rem; /* Restore original size for list view */
+}
+
+.list-view .card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 0.6rem 1.2rem;
+    gap: 0.3rem;
+}
+
+.list-view .song-title {
+    margin-bottom: 0;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+    height: auto; /* Reset the height constraint */
+}
+
+.list-view .song-artist {
+    margin-bottom: 0;
+    color: var(--light-text);
+    font-size: 0.85rem;
+    max-width: 70%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.list-view .song-genre-container {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--light-text);
+}
+
+.list-view .song-genre {
+    display: none; /* Hide genre badge in list view */
 }
 
 /* Removed lyrics button styling */
 
 .song-card .card-content {
-    padding: 0.8rem;
+    padding: 0.6rem;
+    flex: 1;
 }
 
 .song-card .song-title {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    /* Cross-browser text truncation */
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    max-height: 2.4em; /* fallback for non-webkit browsers */
 }
 
 .song-card .song-artist {
-    color: var(--light-text);
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .song-card .song-artist.artist-clickable {
@@ -340,22 +477,57 @@ header p {
     text-decoration: none;
 }
 
+/* Styling for multiple artists */
+.song-artist .artist-clickable,
+.song-genre .genre-clickable,
+.song-genre-container .genre-clickable {
+    cursor: pointer;
+    color: var(--light-text);
+    transition: var(--transition);
+    display: inline-block;
+}
+
+.song-artist .artist-clickable:hover,
+.song-genre .genre-clickable:hover,
+.song-genre-container .genre-clickable:hover {
+    opacity: 0.8;
+    color: var(--primary-color);
+}
+
+/* Small spacing for separators */
+.song-artist span + span,
+.song-genre span + span,
+.song-genre-container span + span {
+    margin-left: 2px;
+}
+
+/* Genre popup specific styles */
+.genre-popup {
+    z-index: 101; /* Ensure genre popup appears above artist popup */
+}
+
+/* Styling for multiple artists */
+.song-artist .artist-clickable {
+    cursor: pointer;
+    color: var(--light-text);
+    transition: var(--transition);
+    display: inline-block;
+}
+
+.song-artist .artist-clickable:hover {
+    opacity: 0.8;
+}
+
+/* Small spacing for artist separators */
+.song-artist span + span {
+    margin-left: 2px;
+}
+
 .song-card .song-details {
     display: flex;
     justify-content: space-between;
     color: var(--light-text);
-    font-size: 0.9rem;
-}
-
-.song-card .song-genre {
-    background-color: var(--secondary-color);
-    color: white;
-    padding: 0.2rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    font-size: 0.7rem;
 }
 
 /* Popup menu styles */
@@ -437,7 +609,7 @@ header p {
 
 .list-view .song-card {
     display: flex;
-    height: 75px;
+    height: 65px;
     align-items: center;
 }
 
@@ -507,7 +679,7 @@ header p {
 
 .list-view .song-meta span {
     font-size: 0.9rem;
-    color: var(--light-text);
+    color: var (--light-text);
 }
 
 .hidden {
@@ -529,7 +701,7 @@ header p {
 footer {
     text-align: center;
     padding: 2rem;
-    color: var(--light-text);
+    color: var (--light-text);
     margin-top: 1rem;
 }
 
@@ -756,8 +928,8 @@ input:checked + .slider:before {
     right: 0;
     margin-top: 5px;
     background-color: var(--card-bg-menu);
-    backdrop-filter: blur(60px);
-    -webkit-backdrop-filter: blur(60px);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     border-radius: 20px;
     box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.3);
     max-height: 0;
@@ -865,8 +1037,8 @@ input:checked + .slider:before {
     }
     
     .grid-view {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.8rem;
     }
     
     .list-view .card-content {
@@ -935,52 +1107,266 @@ input:checked + .slider:before {
     }
     
     .grid-view {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.8rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
     }
     
-    .song-card .card-image {
-        height: 80px;
+    .grid-view .song-card .card-image {
+        height: 5px; /* Even smaller on mobile */
     }
     
-    .song-card .card-content {
-        padding: 0.6rem;
+    .grid-view .song-card .card-content {
+        padding: 0.4rem;
     }
     
-    .song-card .song-title {
-        font-size: 0.9rem;
-        margin-bottom: 0rem;
-    }
-    
-    .song-card .song-artist {
+    .grid-view .song-card .song-title {
         font-size: 0.8rem;
-        margin-bottom: 0rem;
+        margin-bottom: 0.2rem;
     }
     
-    .song-card .song-details {
-        font-size: 0.75rem;
-    }
-    
-    .song-card .song-genre {
+    .grid-view .song-card .song-artist {
         font-size: 0.7rem;
-        padding: 0.1rem 0.5rem;
+        margin-bottom: 0.2rem;
     }
     
-    .view-controls {
-        gap: 0.8rem;
+    .grid-view .song-card .song-details {
+        font-size: 0.65rem;
     }
     
-    .theme-switch {
-        width: 40px;
-        height: 20px;
+    .grid-view .song-card .song-genre {
+        font-size: 0.6rem;
+        padding: 0.1rem 0.4rem;
+        bottom: 5px;
+        right: 5px;
     }
     
-    .slider:before {
-        height: 14px;
-        width: 14px;
+    /* List view mobile adjustments */
+    .list-view .song-card {
+        height: 60px;
     }
     
-    input:checked + .slider:before {
-        transform: translateX(20px);
+    .list-view .card-image {
+        width: 70px;
+        height: 70px;
     }
+    
+    .list-view .card-content {
+        padding: 0.5rem 0.8rem;
+    }
+}
+
+@media (max-width: 350px) {
+    .grid-view {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Random button styles */
+.random-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--light-text);
+    transition: var(--transition);
+    font-size: 1rem;
+}
+
+.random-button:hover,
+.random-button.active {
+    color: var(--primary-color);
+}
+
+/* Random song container styles */
+.random-song-container {
+    margin-bottom: 1rem;
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.random-song-container::before {
+    content: "随机抽选结果";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+    border-bottom-left-radius: 10px;
+    z-index: 10;
+}
+
+/* Close button for random song */
+.random-close-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: var(--transition);
+}
+
+.random-close-btn:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+[data-theme="dark"] .random-close-btn {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .random-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Unified card style for random song */
+.random-song-container .song-card {
+    background-color: rgba(var(--primary-color-rgb), 0.15);
+    border: 2px solid var(--primary-color);
+    margin: 0;
+    box-shadow: 0 8px 20px rgba(var(--primary-color-rgb), 0.15);
+    /* Force consistent styling */
+    display: flex;
+    flex-direction: row;
+    height: 80px;
+    padding-bottom: 0;
+    transform: none;
+}
+
+[data-theme="dark"] .random-song-container .song-card {
+    background-color: rgba(var(--primary-color-rgb), 0.25);
+}
+
+.random-song-container .song-card:hover {
+    transform: none;
+    background-color: rgba(var(--primary-color-rgb), 0.2);
+}
+
+[data-theme="dark"] .random-song-container .song-card:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.3);
+}
+
+/* Force list-like layout for card content */
+.random-song-container .song-card .card-image {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.random-song-container .song-card .card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 0.6rem 1.2rem;
+    gap: 0.3rem;
+}
+
+.random-song-container .song-card .song-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: normal;
+    max-height: none;
+    line-clamp: initial;
+    -webkit-line-clamp: initial;
+    display: block;
+}
+
+.random-song-container .song-card .song-artist {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.random-song-container .song-card .song-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--light-text);
+}
+
+/* Hide grid-specific elements */
+.random-song-container .song-card .song-genre,
+.random-song-container .song-card .song-details {
+    display: none;
+}
+
+/* Random selected song container - improved layout */
+.random-song-container .song-card .card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 0.6rem 1.2rem;
+    gap: 0.3rem;
+}
+
+.random-song-container .song-card .song-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.random-song-container .song-card .song-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80%;
+    line-height: normal;
+    line-clamp: initial;
+    -webkit-line-clamp: initial;
+    display: block;
+}
+
+.random-song-container .song-card .song-year {
+    font-size: 0.9rem;
+    color: var(--light-text);
+    flex-shrink: 0;
+    padding-left: 10px;
+}
+
+.random-song-container .song-card .song-artist {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.random-song-container .song-card .song-genre-tag {
+    font-size: 0.8rem;
+    color: var(--light-text);
+}
+
+/* Hide previously used song-info div */
+.random-song-container .song-card .song-info {
+    display: none;
 }

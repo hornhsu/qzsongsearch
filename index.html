@@ -53,6 +53,9 @@
             </div>
             <div class="view-controls">
                 <div class="view-toggle">
+                    <button id="randomButton" class="random-button" title="随机抽选一首">
+                        <i class="fas fa-dice"></i>
+                    </button>
                     <button id="sortButton" class="sort-button">
                         <i class="fas fa-sort"></i>
                     </button>
@@ -61,6 +64,10 @@
                 </div>
                 <!-- 原主题切换组件已移除 -->
             </div>
+        </div>
+        
+        <div id="randomSongContainer" class="random-song-container hidden">
+            <!-- Random song will be displayed here -->
         </div>
         
         <div id="songContainer" class="list-view">

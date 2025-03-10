@@ -374,13 +374,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Get unique artists
+        // Get unique artists - split by "/" to handle multiple artists per song
         const artists = new Set();
         songs.forEach(song => {
             // Support both traditional and simplified Chinese field names
             const artistField = song['歌手'];
             if (artistField) {
-                artists.add(artistField);
+                // Split artist field by "/" and add each individual artist
+                const artistList = artistField.split('/');
+                artistList.forEach(artist => artists.add(artist.trim()));
             }
         });
         
@@ -463,7 +465,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             
             // Artist filter with support for multi-select
-            const matchesArtist = selectedArtists.includes('all') || selectedArtists.includes(artist);
+            // Handle multiple artists per song (separated by "/")
+            const matchesArtist = selectedArtists.includes('all') || 
+                (artist && artist.split('/').some(individualArtist => 
+                    selectedArtists.includes(individualArtist.trim())
+                ));
             
             return matchesSearch && matchesGenre && matchesYear && matchesArtist;
         });
@@ -540,6 +546,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const filteredAndSortedSongs = filterAndSortSongs(originalSongs);
         displaySongs(filteredAndSortedSongs);
         
+        // Hide the random song container when filters change
+        document.getElementById('randomSongContainer').classList.add('hidden');
+        
         // Show sort info in results count if sorting is active
         if (currentSortOption !== 'default') {
             // Find the text of the selected sort option
@@ -605,30 +614,43 @@ document.addEventListener('DOMContentLoaded', function() {
             const year = song['年分'] || '';
             const genre = song['類型'] || song['类型'] || '';
             
-            // Determine card color based on genre
+            // Determine card color based on genre - now for the icon color instead of background
             const mainGenre = genre.split('/')[0];
-            const cardColor = genreColors[mainGenre] || '#6c5ce7';
+            const iconColor = genreColors[mainGenre] || '#6c5ce7';
             
             // Create card for grid view
             if (songContainer.className === 'grid-view') {
+                // For artists with "/", handle each individually
+                const artistHtml = artist.includes('/') ?
+                    artist.split('/').map(a => 
+                        `<span class="artist-clickable" data-artist="${a.trim()}">${a.trim()}</span>`
+                    ).join(' / ') :
+                    `<span class="artist-clickable" data-artist="${artist}">${artist}</span>`;
+                
                 songCard.innerHTML = `
-                    <div class="card-image" style="background-color: ${cardColor}">
-                        <i class="fas fa-music"></i>
+                    <div class="card-image">
+                        <!-- Removed music icon, keeping empty space for future image replacement -->
                     </div>
                     <div class="card-content">
                         <h3 class="song-title">${songTitle}</h3>
-                        <p class="song-artist artist-clickable" data-artist="${artist}">${artist}</p>
+                        <p class="song-artist">${artistHtml}</p>
                         <div class="song-details">
                             <span>${year}</span>
                         </div>
                     </div>
-                    <span class="song-genre">${genre}</span>
+                    <span class="song-genre" style="background-color: ${iconColor}">${genre}</span>
                 `;
             } else {
-                // Create list item for list view with restructured layout
+                // For list view with multiple artists
+                const artistHtml = artist.includes('/') ?
+                    artist.split('/').map(a => 
+                        `<span class="artist-clickable" data-artist="${a.trim()}">${a.trim()}</span>`
+                    ).join(' / ') :
+                    `<span class="artist-clickable" data-artist="${artist}">${artist}</span>`;
+                
                 songCard.innerHTML = `
-                    <div class="card-image" style="background-color: ${cardColor}">
-                        <i class="fas fa-music"></i>
+                    <div class="card-image">
+                        <i class="fas fa-music" style="color: ${iconColor}"></i>
                     </div>
                     <div class="card-content">
                         <div class="song-row">
@@ -638,7 +660,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                         <div class="song-row">
-                            <p class="song-artist artist-clickable" data-artist="${artist}">${artist}</p>
+                            <p class="song-artist">${artistHtml}</p>
                             <div class="song-meta-bottom">
                                 <span>${genre}</span>
                             </div>
@@ -667,42 +689,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 showCopyNotification(textToCopy);
             });
             
-            // Update the click event for the artist name
-            const artistElement = songCard.querySelector('.artist-clickable');
-            if (artistElement) {
-                artistElement.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Prevent the card's click event from firing
-                    
-                    const clickedArtist = this.getAttribute('data-artist');
-                    const artistPopup = document.querySelector('.artist-popup');
-                    
-                    // Update popup content
-                    const popupHeader = artistPopup.querySelector('.artist-popup-header');
-                    popupHeader.textContent = clickedArtist;
-                    
-                    // Store the artist name as a data attribute
-                    artistPopup.setAttribute('data-artist', clickedArtist);
-                    
-                    // Position popup near the click
-                    const rect = this.getBoundingClientRect();
-                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                    
-                    // Check if there's enough space below
-                    const spaceBelow = window.innerHeight - rect.bottom;
-                    const popupHeight = 110; // Approximate height of popup
-                    
-                    if (spaceBelow < popupHeight) {
-                        // Position above if not enough space below
-                        artistPopup.style.top = `${rect.top + scrollTop - popupHeight - 5}px`;
-                    } else {
-                        // Position below
-                        artistPopup.style.top = `${rect.bottom + scrollTop + 5}px`;
-                    }
-                    
-                    artistPopup.style.left = `${rect.left}px`;
-                    
-                    // Show the popup
-                    artistPopup.classList.add('show');
+            // Update click events for all artist elements instead of just the first one
+            const artistElements = songCard.querySelectorAll('.artist-clickable');
+            if (artistElements.length > 0) {
+                artistElements.forEach(artistElement => {
+                    artistElement.addEventListener('click', function(e) {
+                        e.stopPropagation(); // Prevent the card's click event from firing
+                        
+                        const clickedArtist = this.getAttribute('data-artist');
+                        const artistPopup = document.querySelector('.artist-popup');
+                        
+                        // Update popup content
+                        const popupHeader = artistPopup.querySelector('.artist-popup-header');
+                        popupHeader.textContent = clickedArtist;
+                        
+                        // Store the artist name as a data attribute
+                        artistPopup.setAttribute('data-artist', clickedArtist);
+                        
+                        // Position popup near the click
+                        const rect = this.getBoundingClientRect();
+                        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                        const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+                        
+                        // Get window dimensions and popup size
+                        const windowWidth = window.innerWidth;
+                        const windowHeight = window.innerHeight;
+                        const popupHeight = 110; // Approximate height of popup
+                        const popupWidth = 180; // Approximate min width of popup
+                        
+                        // Calculate available space
+                        const spaceBelow = windowHeight - rect.bottom;
+                        const spaceRight = windowWidth - rect.left;
+                        
+                        // Position vertically - above or below based on available space
+                        if (spaceBelow < popupHeight) {
+                            // Position above if not enough space below
+                            artistPopup.style.top = `${rect.top + scrollTop - popupHeight - 5}px`;
+                        } else {
+                            // Position below
+                            artistPopup.style.top = `${rect.bottom + scrollTop + 5}px`;
+                        }
+                        
+                        // Position horizontally - adjust if too close to right edge
+                        if (spaceRight < popupWidth) {
+                            // Position from right edge of window instead of left edge of clicked element
+                            const rightPosition = Math.max(10, rect.right - popupWidth);
+                            artistPopup.style.left = `${rightPosition + scrollLeft}px`;
+                        } else {
+                            // Normal positioning
+                            artistPopup.style.left = `${rect.left + scrollLeft}px`;
+                        }
+                        
+                        // Show the popup
+                        artistPopup.classList.add('show');
+                    });
                 });
             }
         });
@@ -992,4 +1032,166 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Add random button functionality
+    const randomButton = document.getElementById('randomButton');
+    if (randomButton) {
+        randomButton.addEventListener('click', function() {
+            selectRandomSong();
+        });
+    }
+
+    // Function to select a random song from currently displayed songs
+    function selectRandomSong() {
+        // Get all currently displayed songs
+        const songCards = document.querySelectorAll('#songContainer .song-card');
+        
+        if (songCards.length === 0) {
+            showFilterNotification('没有可供选择的歌曲');
+            return;
+        }
+        
+        // Select a random song
+        const randomIndex = Math.floor(Math.random() * songCards.length);
+        const selectedSong = songCards[randomIndex];
+        
+        // Get song details from the selected card
+        const songTitle = selectedSong.querySelector('.song-title').textContent;
+        const songArtistElement = selectedSong.querySelector('.song-artist');
+        const songArtist = songArtistElement.textContent;
+        
+        // Get year and genre
+        let year = '';
+        let genre = '';
+        
+        // Check if we're in list view or grid view
+        if (document.getElementById('songContainer').classList.contains('list-view')) {
+            // List view
+            year = selectedSong.querySelector('.song-meta-top span')?.textContent || '';
+            genre = selectedSong.querySelector('.song-meta-bottom span')?.textContent || '';
+        } else {
+            // Grid view
+            year = selectedSong.querySelector('.song-details span')?.textContent || '';
+            genre = selectedSong.querySelector('.song-genre')?.textContent || '';
+        }
+        
+        // Get the color of the icon/genre tag for consistent color coding
+        let iconColor = '#6c5ce7'; // Default color
+        const iconElement = selectedSong.querySelector('.card-image i');
+        const genreElement = selectedSong.querySelector('.song-genre');
+        
+        if (iconElement && iconElement.style.color) {
+            iconColor = iconElement.style.color;
+        } else if (genreElement && genreElement.style.backgroundColor) {
+            iconColor = genreElement.style.backgroundColor;
+        }
+        
+        // Create a HTML for the random song card with consistent layout
+        const randomSongContainer = document.getElementById('randomSongContainer');
+        
+        // Format the artist HTML correctly for clickable artists
+        const artistHtml = songArtistElement.innerHTML;
+        
+        randomSongContainer.innerHTML = `
+            <button class="random-close-btn" title="关闭">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="song-card">
+                <div class="card-image">
+                    <i class="fas fa-music" style="color: ${iconColor}; font-size: 2rem;"></i>
+                </div>
+                <div class="card-content">
+                    <div class="song-row">
+                        <h3 class="song-title">${songTitle}</h3>
+                        <div class="song-year">${year}</div>
+                    </div>
+                    <p class="song-artist">${artistHtml}</p>
+                    <div class="song-genre-tag">${genre}</div>
+                </div>
+            </div>
+        `;
+        randomSongContainer.classList.remove('hidden');
+        
+        // Add click event to the close button
+        const closeButton = randomSongContainer.querySelector('.random-close-btn');
+        closeButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            randomSongContainer.classList.add('hidden');
+        });
+        
+        // Add click handler to the random song card
+        const randomSongCard = randomSongContainer.querySelector('.song-card');
+        randomSongCard.addEventListener('click', function(e) {
+            // Don't copy if clicking on the artist name or close button
+            if (e.target.closest('.artist-clickable') || e.target.closest('.random-close-btn')) {
+                return;
+            }
+            
+            const textToCopy = `${songTitle} - ${songArtist}`;
+            copyToClipboard(textToCopy);
+            showCopyNotification(textToCopy);
+        });
+        
+        // Add artist click handlers to the cloned song
+        const artistElements = randomSongContainer.querySelectorAll('.artist-clickable');
+        if (artistElements.length > 0) {
+            artistElements.forEach(artistElement => {
+                artistElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    const clickedArtist = this.getAttribute('data-artist');
+                    const artistPopup = document.querySelector('.artist-popup');
+                    
+                    // Update popup content
+                    const popupHeader = artistPopup.querySelector('.artist-popup-header');
+                    popupHeader.textContent = clickedArtist;
+                    
+                    // Store the artist name as a data attribute
+                    artistPopup.setAttribute('data-artist', clickedArtist);
+                    
+                    // Position popup near the click
+                    const rect = this.getBoundingClientRect();
+                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+                    
+                    // Get window dimensions and popup size
+                    const windowWidth = window.innerWidth;
+                    const windowHeight = window.innerHeight;
+                    const popupHeight = 110; // Approximate height of popup
+                    const popupWidth = 180; // Approximate min width of popup
+                    
+                    // Calculate available space
+                    const spaceBelow = windowHeight - rect.bottom;
+                    const spaceRight = windowWidth - rect.left;
+                    
+                    // Position vertically - above or below based on available space
+                    if (spaceBelow < popupHeight) {
+                        artistPopup.style.top = `${rect.top + scrollTop - popupHeight - 5}px`;
+                    } else {
+                        artistPopup.style.top = `${rect.bottom + scrollTop + 5}px`;
+                    }
+                    
+                    // Position horizontally - adjust if too close to right edge
+                    if (spaceRight < popupWidth) {
+                        const rightPosition = Math.max(10, rect.right - popupWidth);
+                        artistPopup.style.left = `${rightPosition + scrollLeft}px`;
+                    } else {
+                        artistPopup.style.left = `${rect.left + scrollLeft}px`;
+                    }
+                    
+                    // Show the popup
+                    artistPopup.classList.add('show');
+                });
+            });
+        }
+        
+        // Show notification
+        showFilterNotification(`随机抽选: ${songTitle} - ${songArtist}`);
+        
+        // Scroll to top to show the random result
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
 });
