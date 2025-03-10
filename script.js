@@ -1037,7 +1037,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const randomButton = document.getElementById('randomButton');
     if (randomButton) {
         randomButton.addEventListener('click', function() {
-            selectRandomSong();
+            // If random song is already showing, just select another one
+            const randomSongContainer = document.getElementById('randomSongContainer');
+            if (!randomSongContainer.classList.contains('hidden')) {
+                selectRandomSong();
+            } else {
+                // First time showing random song
+                selectRandomSong();
+                
+                // Change button text to "換一首"
+                const buttonText = this.querySelector('span');
+                buttonText.textContent = '换一首';
+            }
         });
     }
 
@@ -1091,7 +1102,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="random-header">
                     <div class="random-header-title">
                         <i class="fas fa-random"></i>
-                        <span>隨機抽選</span>
+                        <span>随机抽选</span>
                     </div>
                     <button class="random-close-btn" title="关闭">
                         <i class="fas fa-times"></i>
@@ -1111,12 +1122,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                 </div>
-                <div class="random-actions">
-                    <button class="random-shuffle-btn" title="再次隨機">
-                        <i class="fas fa-random"></i>
-                        <span>換一首</span>
-                    </button>
-                </div>
             </div>
         `;
         
@@ -1127,13 +1132,11 @@ document.addEventListener('DOMContentLoaded', function() {
         closeButton.addEventListener('click', function(e) {
             e.stopPropagation();
             randomSongContainer.classList.add('hidden');
-        });
-        
-        // Add click event to the shuffle again button
-        const shuffleButton = randomSongContainer.querySelector('.random-shuffle-btn');
-        shuffleButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            selectRandomSong(); // Call the function again to select another random song
+            
+            // Reset the random button text back to "随机抽选"
+            const randomButton = document.getElementById('randomButton');
+            const buttonText = randomButton.querySelector('span');
+            buttonText.textContent = '随机抽选';
         });
         
         // Add click handler to the random song card to copy song info

@@ -1183,6 +1183,13 @@ input:checked + .slider:before {
     color: var(--light-text);
     transition: var(--transition);
     font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.random-button span {
+    font-size: 0.85rem;
 }
 
 .random-button:hover,
