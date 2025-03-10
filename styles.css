@@ -728,13 +728,26 @@ footer {
     box-shadow: var(--shadow);
     display: flex;
     align-items: center;
+    justify-content: center; /* 水平置中內容 */
     gap: 0.8rem;
     transition: bottom 0.5s ease;
     z-index: 1000;
+    max-width: 90%;
+    min-width: 300px;
+    width: auto;
+    text-align: center; /* 文字置中對齊 */
 }
 
 .copy-notification i {
     font-size: 1.2rem;
+    flex-shrink: 0; /* 防止圖標被壓縮 */
+}
+
+.copy-notification span {
+    white-space: nowrap; /* 確保文字不換行 */
+    overflow: hidden; /* 超出部分隱藏 */
+    text-overflow: ellipsis; /* 顯示省略號 */
+    text-align: center; /* 確保文字置中顯示 */
 }
 
 .copy-notification.show {
@@ -824,7 +837,7 @@ input:checked + .slider:before {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: 8px;
-    box-shadow: var(--shadow);
+    box-shadow: var (--shadow);
     z-index: 100;
     min-width: 200px;
     padding: 0;
@@ -857,7 +870,7 @@ input:checked + .slider:before {
 .sort-popup-option {
     padding: 8px 15px;
     cursor: pointer;
-    transition: var(--transition);
+    transition: var (--transition);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1120,7 +1133,7 @@ input:checked + .slider:before {
     }
     
     .grid-view .song-card .song-title {
-        font-size: 0.8rem;
+        font-size: 1rem;
         margin-bottom: 0.2rem;
     }
     
@@ -1179,36 +1192,22 @@ input:checked + .slider:before {
 
 /* Random song container styles */
 .random-song-container {
-    margin-bottom: 1rem;
+    margin: 1rem auto 1.5rem;  /* 縮減上下邊距 */
     position: relative;
-    border-radius: 15px;
+    border-radius: 12px;
     overflow: hidden;
-    animation: fadeIn 0.5s ease-out forwards;
-}
-
-.random-song-container::before {
-    content: "随机抽选结果";
-    position: absolute;
-    top: 0;
-    right: 0;
-    background-color: var(--primary-color);
-    color: white;
-    font-size: 0.75rem;
-    padding: 0.3rem 0.8rem;
-    border-bottom-left-radius: 10px;
-    z-index: 10;
+    animation: fadeInScale 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+    max-width: 600px;  /* 縮減最大寬度 */
+    box-shadow: 0 15px 30px -12px rgba(var(--primary-color-rgb), 0.25);
 }
 
 /* Close button for random song */
 .random-close-btn {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 24px;
+    width: 24px;  /* 縮小按鈕 */
     height: 24px;
     display: flex;
     align-items: center;
@@ -1216,10 +1215,11 @@ input:checked + .slider:before {
     cursor: pointer;
     z-index: 10;
     transition: var(--transition);
+    /* 移除定位屬性，讓按鈕跟隨 flex 佈局 */
 }
 
 .random-close-btn:hover {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
 }
 
@@ -1260,7 +1260,7 @@ input:checked + .slider:before {
 
 /* Force list-like layout for card content */
 .random-song-container .song-card .card-image {
-    width: 80px;
+    width: 80px;  /* 縮小專輯封面 */
     height: 80px;
     flex-shrink: 0;
     display: flex;
@@ -1369,4 +1369,193 @@ input:checked + .slider:before {
 /* Hide previously used song-info div */
 .random-song-container .song-card .song-info {
     display: none;
+}
+
+/* 隨機歌曲卡片 - 全新設計 */
+.random-song-container {
+    margin: 1rem auto 1.5rem;  /* 縮減上下邊距 */
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    animation: fadeInScale 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+    max-width: 600px;  /* 縮減最大寬度 */
+    box-shadow: 0 15px 30px -12px rgba(var(--primary-color-rgb), 0.25);
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.98) translateY(-8px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.random-song-container .song-card {
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--accent-color-rgb), 0.12) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: none;
+    box-shadow: none;
+    border-radius: 20px;
+    padding: 0;
+    height: auto;
+    display: block;
+    transform: none !important;
+}
+
+[data-theme="dark"] .random-song-container .song-card {
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.2) 0%, rgba(var(--accent-color-rgb), 0.25) 100%);
+}
+
+/* 隨機歌曲頭部區域 */
+.random-header {
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 0.7rem 1.2rem;  /* 縮減內邊距 */
+    display: flex;
+    justify-content: space-between; /* 確保標題和關閉按鈕分別在兩端 */
+    align-items: center;
+}
+
+.random-header-title {
+    order: 1; /* 確保標題在左側 */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;  /* 減小字體 */
+    font-weight: 600;
+}
+
+.random-header-title i {
+    font-size: 1.1rem;
+}
+
+.random-header .random-close-btn {
+    order: 2; /* 確保關閉按鈕在右側 */
+}
+
+/* 歌曲內容區 */
+.random-content {
+    display: flex;
+    padding: 1rem 1.2rem;  /* 縮減內邊距 */
+    gap: 1rem;  /* 縮減元素間距 */
+    align-items: center;
+}
+
+.random-album-art {
+    width: 80px;  /* 縮小專輯封面 */
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.2rem;  /* 縮小圖標 */
+    box-shadow: 0 15px 30px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.random-album-art i {
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2));
+}
+
+.random-song-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 0;  /* 移除額外padding */
+}
+
+.random-song-title {
+    font-size: 1.3rem;  /* 縮小標題字體 */
+    font-weight: 700;
+    margin-bottom: 0.3rem;  /* 減少標題下方間距 */
+    color: var(--text-color);
+    line-height: 1.2;
+}
+
+.random-song-artist {
+    font-size: 1rem;  /* 縮小藝術家字體 */
+    margin-bottom: 0.5rem;  /* 減少下方間距 */
+    color: var(--light-text);
+    line-height: 1.4;
+}
+
+.random-song-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;  /* 縮減標籤間距 */
+    font-size: 0.8rem;  /* 縮小元數據字體 */
+    color: var(--light-text);
+}
+
+.random-song-meta div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.random-song-meta i {
+    opacity: 0.7;
+}
+
+/* 隨機按鈕區 */
+.random-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1.2rem 1rem;  /* 縮減內邊距 */
+}
+
+.random-shuffle-btn {
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.5rem 1.2rem;  /* 縮減按鈕大小 */
+    font-size: 0.9rem;  /* 縮小按鈕文字 */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 10px 25px rgba(var(--primary-color-rgb), 0.3);
+}
+
+.random-shuffle-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(var(--primary-color-rgb), 0.4);
+}
+
+/* 移動裝置適配 */
+@media (max-width: 768px) {
+    .random-content {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .random-album-art {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .random-song-title {
+        font-size: 1.2rem;
+    }
+    
+    /* 確保在小螢幕上內容依然水平排列以節省空間 */
+    .random-content {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+    }
+    
+    .random-song-meta {
+        justify-content: flex-start;
+    }
 }

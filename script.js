@@ -1061,8 +1061,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const songArtist = songArtistElement.textContent;
         
         // Get year and genre
-        let year = '';
-        let genre = '';
+        let year = '', genre = '', duration = '';
         
         // Check if we're in list view or grid view
         if (document.getElementById('songContainer').classList.contains('list-view')) {
@@ -1075,41 +1074,52 @@ document.addEventListener('DOMContentLoaded', function() {
             genre = selectedSong.querySelector('.song-genre')?.textContent || '';
         }
         
-        // Get the color of the icon/genre tag for consistent color coding
-        let iconColor = '#6c5ce7'; // Default color
-        const iconElement = selectedSong.querySelector('.card-image i');
-        const genreElement = selectedSong.querySelector('.song-genre');
-        
-        if (iconElement && iconElement.style.color) {
-            iconColor = iconElement.style.color;
-        } else if (genreElement && genreElement.style.backgroundColor) {
-            iconColor = genreElement.style.backgroundColor;
+        // Try to find the original song object to get the duration
+        const songTitleText = songTitle.trim();
+        const originalSong = window.originalSongs?.find(song => song['歌曲'] === songTitleText);
+        if (originalSong && originalSong['歌曲时长']) {
+            duration = originalSong['歌曲时长'];
         }
-        
-        // Create a HTML for the random song card with consistent layout
-        const randomSongContainer = document.getElementById('randomSongContainer');
         
         // Format the artist HTML correctly for clickable artists
         const artistHtml = songArtistElement.innerHTML;
         
+        // Create HTML for the new compact random song card design
+        const randomSongContainer = document.getElementById('randomSongContainer');
         randomSongContainer.innerHTML = `
-            <button class="random-close-btn" title="关闭">
-                <i class="fas fa-times"></i>
-            </button>
             <div class="song-card">
-                <div class="card-image">
-                    <i class="fas fa-music" style="color: ${iconColor}; font-size: 2rem;"></i>
-                </div>
-                <div class="card-content">
-                    <div class="song-row">
-                        <h3 class="song-title">${songTitle}</h3>
-                        <div class="song-year">${year}</div>
+                <div class="random-header">
+                    <div class="random-header-title">
+                        <i class="fas fa-random"></i>
+                        <span>隨機抽選</span>
                     </div>
-                    <p class="song-artist">${artistHtml}</p>
-                    <div class="song-genre-tag">${genre}</div>
+                    <button class="random-close-btn" title="关闭">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="random-content">
+                    <div class="random-album-art">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <div class="random-song-info">
+                        <h3 class="random-song-title">${songTitle || '未知歌曲'}</h3>
+                        <div class="random-song-artist">${artistHtml || '未知歌手'}</div>
+                        <div class="random-song-meta">
+                            ${year ? `<div class="random-song-year"><i class="fas fa-calendar-alt"></i>${year}</div>` : ''}
+                            ${genre ? `<div class="random-song-genre"><i class="fas fa-tag"></i>${genre}</div>` : ''}
+                            ${duration ? `<div class="random-song-duration"><i class="fas fa-clock"></i>${duration}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="random-actions">
+                    <button class="random-shuffle-btn" title="再次隨機">
+                        <i class="fas fa-random"></i>
+                        <span>換一首</span>
+                    </button>
                 </div>
             </div>
         `;
+        
         randomSongContainer.classList.remove('hidden');
         
         // Add click event to the close button
@@ -1119,14 +1129,24 @@ document.addEventListener('DOMContentLoaded', function() {
             randomSongContainer.classList.add('hidden');
         });
         
-        // Add click handler to the random song card
+        // Add click event to the shuffle again button
+        const shuffleButton = randomSongContainer.querySelector('.random-shuffle-btn');
+        shuffleButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectRandomSong(); // Call the function again to select another random song
+        });
+        
+        // Add click handler to the random song card to copy song info
         const randomSongCard = randomSongContainer.querySelector('.song-card');
         randomSongCard.addEventListener('click', function(e) {
-            // Don't copy if clicking on the artist name or close button
-            if (e.target.closest('.artist-clickable') || e.target.closest('.random-close-btn')) {
+            // Don't copy if clicking on buttons, artist links, or other interactive elements
+            if (e.target.closest('.random-close-btn') || 
+                e.target.closest('.random-shuffle-btn') ||
+                e.target.closest('.artist-clickable')) {
                 return;
             }
             
+            // Copy to clipboard
             const textToCopy = `${songTitle} - ${songArtist}`;
             copyToClipboard(textToCopy);
             showCopyNotification(textToCopy);
@@ -1154,30 +1174,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const scrollTop = window.scrollY || document.documentElement.scrollTop;
                     const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
                     
-                    // Get window dimensions and popup size
-                    const windowWidth = window.innerWidth;
-                    const windowHeight = window.innerHeight;
-                    const popupHeight = 110; // Approximate height of popup
-                    const popupWidth = 180; // Approximate min width of popup
-                    
-                    // Calculate available space
-                    const spaceBelow = windowHeight - rect.bottom;
-                    const spaceRight = windowWidth - rect.left;
-                    
-                    // Position vertically - above or below based on available space
-                    if (spaceBelow < popupHeight) {
-                        artistPopup.style.top = `${rect.top + scrollTop - popupHeight - 5}px`;
-                    } else {
-                        artistPopup.style.top = `${rect.bottom + scrollTop + 5}px`;
-                    }
-                    
-                    // Position horizontally - adjust if too close to right edge
-                    if (spaceRight < popupWidth) {
-                        const rightPosition = Math.max(10, rect.right - popupWidth);
-                        artistPopup.style.left = `${rightPosition + scrollLeft}px`;
-                    } else {
-                        artistPopup.style.left = `${rect.left + scrollLeft}px`;
-                    }
+                    // Position calculation logic
+                    // ...existing code...
                     
                     // Show the popup
                     artistPopup.classList.add('show');
