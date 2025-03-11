@@ -46,6 +46,59 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme
     initTheme();
     
+    // Function to set the default view based on device and orientation
+    function setDefaultView() {
+        const songContainer = document.getElementById('songContainer');
+        const gridViewBtn = document.getElementById('gridView');
+        const listViewBtn = document.getElementById('listView');
+        
+        // Check if user has a saved preference
+        const savedView = localStorage.getItem('preferredView');
+        
+        if (savedView) {
+            // Use the saved preference if available
+            if (savedView === 'grid') {
+                songContainer.className = 'grid-view';
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+            } else {
+                songContainer.className = 'list-view';
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+            }
+        } else {
+            // No saved preference, set view based on device and orientation
+            const isMobile = window.innerWidth <= 768;
+            const isPortrait = window.innerHeight > window.innerWidth;
+            
+            if (isMobile && isPortrait) {
+                // Mobile in portrait mode - use list view
+                songContainer.className = 'list-view';
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+            } else {
+                // Desktop or mobile in landscape - use grid view
+                songContainer.className = 'grid-view';
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+            }
+        }
+        
+        // If songs are already loaded, redisplay them with the current view
+        if (window.originalSongs) {
+            displaySongs(filterAndSortSongs(window.originalSongs));
+        }
+    }
+    
+    // Set the default view on page load
+    setDefaultView();
+    
+    // Update view when orientation changes
+    window.addEventListener('orientationchange', function() {
+        // Small delay to ensure dimensions are updated
+        setTimeout(setDefaultView, 100);
+    });
+    
     // Create popup element and add to body
     const artistPopup = document.createElement('div');
     artistPopup.className = 'artist-popup';
@@ -280,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 songContainer.className = 'grid-view';
                 gridViewBtn.classList.add('active');
                 listViewBtn.classList.remove('active');
+                localStorage.setItem('preferredView', 'grid'); // Save preference
                 displaySongs(filterAndSortSongs(originalSongs)); // Redisplay with current filters and sort
             });
             
@@ -287,6 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 songContainer.className = 'list-view';
                 listViewBtn.classList.add('active');
                 gridViewBtn.classList.remove('active');
+                localStorage.setItem('preferredView', 'list'); // Save preference
                 displaySongs(filterAndSortSongs(originalSongs)); // Redisplay with current filters and sort
             });
             
@@ -349,6 +404,58 @@ document.addEventListener('DOMContentLoaded', function() {
             return song;
         });
     }
+    
+    // Add swipe gesture detection for mobile view switching
+    function initSwipeGestures() {
+        const container = document.querySelector('.container');
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        // Touch start event - record initial position
+        container.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        // Touch end event - calculate swipe and switch view if needed
+        container.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+        
+        // Handle the swipe direction and switch views accordingly
+        function handleSwipe() {
+            const swipeDistance = touchEndX - touchStartX;
+            const minSwipeDistance = 80; // Minimum distance to trigger view change
+            
+            if (Math.abs(swipeDistance) < minSwipeDistance) {
+                return; // Not a significant swipe
+            }
+            
+            const songContainer = document.getElementById('songContainer');
+            const gridViewBtn = document.getElementById('gridView');
+            const listViewBtn = document.getElementById('listView');
+            
+            if (swipeDistance > 0) {
+                // Swipe right - switch to list view
+                songContainer.className = 'list-view';
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+            } else {
+                // Swipe left - switch to grid view
+                songContainer.className = 'grid-view';
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+            }
+            
+            // Re-display songs with the current filters and sorting to update layout
+            if (window.originalSongs) {
+                displaySongs(filterAndSortSongs(window.originalSongs));
+            }
+        }
+    }
+    
+    // Call the swipe gesture initialization
+    initSwipeGestures();
     
     function populateFilters(songs) {
         // Get unique genres
