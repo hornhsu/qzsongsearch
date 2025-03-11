@@ -46,89 +46,79 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme
     initTheme();
     
+    // Global lock to prevent concurrent view changes
+    let viewChangeLocked = false;
+    
     // Function to set the default view based on device and orientation
-    function setDefaultView() {
-        const songContainer = document.getElementById('songContainer');
-        const gridViewBtn = document.getElementById('gridView');
-        const listViewBtn = document.getElementById('listView');
+    function setDefaultView(forceUpdate = false) {
+        // Skip if view change is already in progress
+        if (viewChangeLocked) return;
         
-        // Check if user has a saved preference
-        const savedView = localStorage.getItem('preferredView');
-        
-        if (savedView) {
-            // Use the saved preference if available
-            if (savedView === 'grid') {
-                songContainer.className = 'grid-view';
-                gridViewBtn.classList.add('active');
-                listViewBtn.classList.remove('active');
-            } else {
-                songContainer.className = 'list-view';
-                listViewBtn.classList.add('active');
-                gridViewBtn.classList.remove('active');
-            }
-        } else {
-            // No saved preference, set view based on device and orientation
-            const isMobile = window.innerWidth <= 768;
-            const isPortrait = window.innerHeight > window.innerWidth;
+        try {
+            // Lock the view change process
+            viewChangeLocked = true;
             
-            if (isMobile && isPortrait) {
-                // Mobile in portrait mode - use list view
-                songContainer.className = 'list-view';
-                listViewBtn.classList.add('active');
-                gridViewBtn.classList.remove('active');
+            const songContainer = document.getElementById('songContainer');
+            const gridViewBtn = document.getElementById('gridView');
+            const listViewBtn = document.getElementById('listView');
+            
+            // Check if user has a saved preference
+            const savedView = localStorage.getItem('preferredView');
+            
+            if (savedView && !forceUpdate) {
+                // Use the saved preference if available
+                if (savedView === 'grid') {
+                    songContainer.className = 'grid-view';
+                    gridViewBtn.classList.add('active');
+                    listViewBtn.classList.remove('active');
+                } else {
+                    songContainer.className = 'list-view';
+                    listViewBtn.classList.add('active');
+                    gridViewBtn.classList.remove('active');
+                }
             } else {
-                // Desktop or mobile in landscape - use grid view
-                songContainer.className = 'grid-view';
-                gridViewBtn.classList.add('active');
-                listViewBtn.classList.remove('active');
+                // No saved preference or forced update, determine view based on device
+                const isMobile = window.innerWidth <= 768;
+                const isPortrait = window.innerHeight > window.innerWidth;
+                
+                if (isMobile && isPortrait) {
+                    // Only mobile devices in portrait mode use list view
+                    console.log("Setting list view (mobile portrait mode)");
+                    songContainer.className = 'list-view';
+                    listViewBtn.classList.add('active');
+                    gridViewBtn.classList.remove('active');
+                } else {
+                    // All other devices/orientations use grid view by default
+                    console.log("Setting grid view (desktop or landscape mode)");
+                    songContainer.className = 'grid-view';
+                    gridViewBtn.classList.add('active');
+                    listViewBtn.classList.remove('active');
+                }
             }
-        }
-        
-        // If songs are already loaded, redisplay them with the current view
-        if (window.originalSongs) {
-            displaySongs(filterAndSortSongs(window.originalSongs));
+            
+            // Only redisplay songs if they're already loaded
+            if (window.originalSongs) {
+                displaySongs(filterAndSortSongs(window.originalSongs));
+            }
+        } finally {
+            // Release the lock after a short delay to prevent rapid changes
+            setTimeout(() => {
+                viewChangeLocked = false;
+            }, 200);
         }
     }
     
-    // Set the default view on page load
+    // Initialize view on page load
     setDefaultView();
     
-    // Update view when orientation changes
+    // Handle orientation changes
     window.addEventListener('orientationchange', function() {
-        // Small delay to ensure dimensions are updated
-        setTimeout(setDefaultView, 300); // Increased delay for better reliability
-    });
-    
-    // Add a resize listener to handle window size changes
-    window.addEventListener('resize', debounce(function() {
-        // Only change view automatically if user hasn't set a preference
-        if (!localStorage.getItem('preferredView')) {
-            setDefaultView();
-        }
-    }, 250));
-    
-    // Add a function to reset view preference when device orientation changes significantly
-    // This helps when users rotate their devices but expect the view to update automatically
-    function setupOrientationChangeHandler() {
-        let lastOrientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+        // Clear any saved view preference when device orientation changes
+        localStorage.removeItem('preferredView');
         
-        // Check for significant orientation changes
-        window.addEventListener('resize', debounce(function() {
-            const currentOrientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
-            
-            // If orientation changed significantly (portrait to landscape or vice versa)
-            if (currentOrientation !== lastOrientation) {
-                lastOrientation = currentOrientation;
-                
-                // Clear the saved preference to allow automatic view switching
-                localStorage.removeItem('preferredView');
-                setDefaultView();
-            }
-        }, 300));
-    }
-    
-    // Initialize orientation change handler
-    setupOrientationChangeHandler();
+        // Add a small delay to ensure dimensions are updated after orientation change
+        setTimeout(() => setDefaultView(true), 150);
+    });
     
     // Create popup element and add to body
     const artistPopup = document.createElement('div');
@@ -361,19 +351,47 @@ document.addEventListener('DOMContentLoaded', function() {
             setupMultiSelect('filterArtist');
             
             gridViewBtn.addEventListener('click', function() {
-                songContainer.className = 'grid-view';
-                gridViewBtn.classList.add('active');
-                listViewBtn.classList.remove('active');
-                localStorage.setItem('preferredView', 'grid'); // Save preference
-                displaySongs(filterAndSortSongs(originalSongs)); // Redisplay with current filters and sort
+                if (viewChangeLocked) return; // Prevent action if view change is in progress
+        
+                try {
+                    viewChangeLocked = true;
+                    
+                    const songContainer = document.getElementById('songContainer');
+                    songContainer.className = 'grid-view';
+                    gridViewBtn.classList.add('active');
+                    listViewBtn.classList.remove('active');
+                    localStorage.setItem('preferredView', 'grid');
+                    
+                    if (window.originalSongs) {
+                        displaySongs(filterAndSortSongs(window.originalSongs));
+                    }
+                } finally {
+                    setTimeout(() => {
+                        viewChangeLocked = false;
+                    }, 200);
+                }
             });
             
             listViewBtn.addEventListener('click', function() {
-                songContainer.className = 'list-view';
-                listViewBtn.classList.add('active');
-                gridViewBtn.classList.remove('active');
-                localStorage.setItem('preferredView', 'list'); // Save preference
-                displaySongs(filterAndSortSongs(originalSongs)); // Redisplay with current filters and sort
+                if (viewChangeLocked) return; // Prevent action if view change is in progress
+        
+                try {
+                    viewChangeLocked = true;
+                    
+                    const songContainer = document.getElementById('songContainer');
+                    songContainer.className = 'list-view';
+                    listViewBtn.classList.add('active');
+                    gridViewBtn.classList.remove('active');
+                    localStorage.setItem('preferredView', 'list');
+                    
+                    if (window.originalSongs) {
+                        displaySongs(filterAndSortSongs(window.originalSongs));
+                    }
+                } finally {
+                    setTimeout(() => {
+                        viewChangeLocked = false;
+                    }, 200);
+                }
             });
             
             // Add event listener to clear filters button
