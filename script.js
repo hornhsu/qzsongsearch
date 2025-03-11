@@ -1296,10 +1296,41 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show notification
         showFilterNotification(`随机抽选: ${songTitle} - ${songArtist}`);
         
-        // Scroll to top to show the random result
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        // Improved scroll behavior to ensure the random song container is fully visible
+        setTimeout(() => {
+            const container = randomSongContainer.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            
+            // Check if the random song container is fully visible
+            const isFullyVisible = 
+                container.top >= 0 &&
+                container.bottom <= windowHeight;
+                
+            if (!isFullyVisible) {
+                // Calculate optimal scroll position
+                const currentScrollY = window.scrollY;
+                let targetScrollY;
+                
+                if (container.top < 0) {
+                    // If top is cut off, scroll up to show it
+                    targetScrollY = currentScrollY + container.top - 20; // 20px buffer
+                } else if (container.bottom > windowHeight) {
+                    // If bottom is cut off, scroll down to show it
+                    targetScrollY = currentScrollY + (container.bottom - windowHeight) + 20; // 20px buffer
+                }
+                
+                // If the container is very large and cannot fit in viewport,
+                // prioritize showing the top
+                if (container.height > windowHeight) {
+                    targetScrollY = currentScrollY + container.top - 20;
+                }
+                
+                // Perform the scroll
+                window.scrollTo({
+                    top: targetScrollY,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100); // Small delay to let the DOM update
     }
 });
