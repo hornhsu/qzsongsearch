@@ -96,8 +96,39 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update view when orientation changes
     window.addEventListener('orientationchange', function() {
         // Small delay to ensure dimensions are updated
-        setTimeout(setDefaultView, 100);
+        setTimeout(setDefaultView, 300); // Increased delay for better reliability
     });
+    
+    // Add a resize listener to handle window size changes
+    window.addEventListener('resize', debounce(function() {
+        // Only change view automatically if user hasn't set a preference
+        if (!localStorage.getItem('preferredView')) {
+            setDefaultView();
+        }
+    }, 250));
+    
+    // Add a function to reset view preference when device orientation changes significantly
+    // This helps when users rotate their devices but expect the view to update automatically
+    function setupOrientationChangeHandler() {
+        let lastOrientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+        
+        // Check for significant orientation changes
+        window.addEventListener('resize', debounce(function() {
+            const currentOrientation = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+            
+            // If orientation changed significantly (portrait to landscape or vice versa)
+            if (currentOrientation !== lastOrientation) {
+                lastOrientation = currentOrientation;
+                
+                // Clear the saved preference to allow automatic view switching
+                localStorage.removeItem('preferredView');
+                setDefaultView();
+            }
+        }, 300));
+    }
+    
+    // Initialize orientation change handler
+    setupOrientationChangeHandler();
     
     // Create popup element and add to body
     const artistPopup = document.createElement('div');
