@@ -1329,8 +1329,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     targetScrollY = currentScrollY + container.top - topBuffer;
                 }
                 
-                // Perform the scroll if a target was calculated
-                if (targetScrollY !== undefined) {
+                // Only scroll if necessary and if the change is significant
+                if (targetScrollY !== undefined && Math.abs(targetScrollY - currentScrollY) > 5) {
                     window.scrollTo({
                         top: targetScrollY,
                         behavior: 'smooth'
