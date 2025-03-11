@@ -1201,9 +1201,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // First time showing random song
                 selectRandomSong();
                 
-                // Change button text to "換一首"
+                // Change button text to "換一首" and maintain active state
                 const buttonText = this.querySelector('span');
                 buttonText.textContent = '换一首';
+                
+                // Add active class to indicate an active state
+                randomButton.classList.add('active');
             }
         });
     }
@@ -1283,6 +1286,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         randomSongContainer.classList.remove('hidden');
         
+        // Make sure the random button stays in active state
+        document.getElementById('randomButton').classList.add('active');
+        
         // Add click event to the close button
         const closeButton = randomSongContainer.querySelector('.random-close-btn');
         closeButton.addEventListener('click', function(e) {
@@ -1293,6 +1299,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const randomButton = document.getElementById('randomButton');
             const buttonText = randomButton.querySelector('span');
             buttonText.textContent = '随机抽选';
+            
+            // Remove the active state when closing the random song container
+            randomButton.classList.remove('active');
         });
         
         // Add click handler to the random song card to copy song info
