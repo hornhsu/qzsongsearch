@@ -1296,40 +1296,46 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show notification
         showFilterNotification(`随机抽选: ${songTitle} - ${songArtist}`);
         
-        // Improved scroll behavior to ensure the random song container is fully visible
+        // Improved scroll behavior with extra space for copy notification
         setTimeout(() => {
             const container = randomSongContainer.getBoundingClientRect();
             const windowHeight = window.innerHeight;
             
-            // Check if the random song container is fully visible
+            // Define buffers - extra space for better visibility
+            const topBuffer = 20; // Space at the top
+            const bottomBuffer = 100; // Increased bottom buffer for copy notification
+            
+            // Check if the random song container is fully visible with adequate spacing
             const isFullyVisible = 
-                container.top >= 0 &&
-                container.bottom <= windowHeight;
-                
+                container.top >= topBuffer &&
+                container.bottom <= (windowHeight - bottomBuffer);
+                    
             if (!isFullyVisible) {
                 // Calculate optimal scroll position
                 const currentScrollY = window.scrollY;
                 let targetScrollY;
                 
-                if (container.top < 0) {
-                    // If top is cut off, scroll up to show it
-                    targetScrollY = currentScrollY + container.top - 20; // 20px buffer
-                } else if (container.bottom > windowHeight) {
-                    // If bottom is cut off, scroll down to show it
-                    targetScrollY = currentScrollY + (container.bottom - windowHeight) + 20; // 20px buffer
+                if (container.top < topBuffer) {
+                    // If top doesn't have enough buffer, scroll up
+                    targetScrollY = currentScrollY + container.top - topBuffer;
+                } else if (container.bottom > (windowHeight - bottomBuffer)) {
+                    // If bottom is too close to viewport edge, scroll down to allow space for notifications
+                    targetScrollY = currentScrollY + (container.bottom - (windowHeight - bottomBuffer));
                 }
                 
-                // If the container is very large and cannot fit in viewport,
-                // prioritize showing the top
-                if (container.height > windowHeight) {
-                    targetScrollY = currentScrollY + container.top - 20;
+                // If the container is very large and cannot fit in viewport with buffers,
+                // prioritize showing the top with proper spacing
+                if (container.height > (windowHeight - topBuffer - bottomBuffer)) {
+                    targetScrollY = currentScrollY + container.top - topBuffer;
                 }
                 
-                // Perform the scroll
-                window.scrollTo({
-                    top: targetScrollY,
-                    behavior: 'smooth'
-                });
+                // Perform the scroll if a target was calculated
+                if (targetScrollY !== undefined) {
+                    window.scrollTo({
+                        top: targetScrollY,
+                        behavior: 'smooth'
+                    });
+                }
             }
         }, 100); // Small delay to let the DOM update
     }
