@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Fetch CSV data from file
-    fetch('songlist.csv')
+    fetch('songlist_tag.csv')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const searchButton = document.getElementById('searchButton');
             const songContainer = document.getElementById('songContainer');
             const filterType = document.getElementById('filterType');
-            const filterYear = document.getElementById('filterYear');
+            const filterMood = document.getElementById('filterMood');
             const filterArtist = document.getElementById('filterArtist');
             // Remove reference to non-existent sortOptions element
             const resultsCount = document.getElementById('resultsCount');
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Convert standard select elements to multi-select 
             setupMultiSelect('filterType');
-            setupMultiSelect('filterYear');
+            setupMultiSelect('filterMood');
             setupMultiSelect('filterArtist');
             
             gridViewBtn.addEventListener('click', function() {
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Reset multi-select filters
                 resetMultiSelect('filterType');
-                resetMultiSelect('filterYear');
+                resetMultiSelect('filterMood');
                 resetMultiSelect('filterArtist');
                 
                 // Reset sorting to default
@@ -518,17 +518,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Get decades from years
-        const decades = new Set();
+        // Get unique mood tags - Add logging and trimming
+        const moods = new Set();
         songs.forEach(song => {
-            // Support both traditional and simplified Chinese field names
-            const yearField = song['年分'];
-            if (yearField) {
-                const year = parseInt(yearField);
-                const decade = Math.floor(year / 10) * 10;
-                decades.add(decade);
+            const moodField = song['心情标签'];
+            if (moodField) {
+                // Make sure we trim any whitespace
+                const trimmedMood = moodField.trim();
+                moods.add(trimmedMood);
+                
+                // Update the song object with the trimmed value to ensure consistency
+                song['心情标签'] = trimmedMood;
             }
         });
+        console.log("Unique mood values:", Array.from(moods));
         
         // Get unique artists - split by "/" to handle multiple artists per song
         const artists = new Set();
@@ -552,14 +555,14 @@ document.addEventListener('DOMContentLoaded', function() {
             filterType.appendChild(option);
         });
         
-        // Populate decade filter
-        const filterYear = document.getElementById('filterYear');
-        filterYear.innerHTML = '<option value="all">所有年份</option>';
-        Array.from(decades).sort((a, b) => b - a).forEach(decade => {
+        // Populate mood filter - REPLACED YEAR FILTER
+        const filterMood = document.getElementById('filterMood');
+        filterMood.innerHTML = '<option value="all">所有心情</option>';
+        Array.from(moods).sort().forEach(mood => {
             const option = document.createElement('option');
-            option.value = decade;
-            option.textContent = `${decade}年代`;
-            filterYear.appendChild(option);
+            option.value = mood;
+            option.textContent = mood;
+            filterMood.appendChild(option);
         });
         
         // Populate artist filter
@@ -576,19 +579,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterSongs(songs) {
         const searchInput = document.getElementById('searchInput');
         const filterTypeInput = document.getElementById('filterType'); // Now a hidden input
-        const filterYearInput = document.getElementById('filterYear'); // Now a hidden input
+        const filterMoodInput = document.getElementById('filterMood'); // Changed from filterYear to filterMood
         const filterArtistInput = document.getElementById('filterArtist'); // Now a hidden input
         const clearFiltersBtn = document.getElementById('clearFilters');
         
         const searchTerm = searchInput.value.toLowerCase();
         const selectedTypes = filterTypeInput.value.split(',');
-        const selectedYears = filterYearInput.value.split(',');
+        const selectedMoods = filterMoodInput.value.split(',').map(mood => mood.trim());
         const selectedArtists = filterArtistInput.value.split(',');
+        
+        // Add debug logging for selected filters
+        console.log("Selected Mood Filters:", selectedMoods);
         
         // Show or hide the clear filters button based on whether any filters are active
         if (searchTerm !== '' || 
             !selectedTypes.includes('all') || 
-            !selectedYears.includes('all') || 
+            !selectedMoods.includes('all') || // Changed from selectedYears to selectedMoods
             !selectedArtists.includes('all') ||
             currentSortOption !== 'default') {
             clearFiltersBtn.classList.remove('hidden');
@@ -602,23 +608,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const artist = song['歌手'];
             const year = song['年分'];
             const genre = song['類型'] || song['类型'];
+            const mood = song['心情标签']?.trim(); // Added mood field with trim
             
             const matchesSearch = searchTerm === '' || 
                 (songTitle && songTitle.toLowerCase().includes(searchTerm)) || 
                 (artist && artist.toLowerCase().includes(searchTerm)) || 
                 (year && year.includes(searchTerm)) ||
-                (genre && genre.toLowerCase().includes(searchTerm));
+                (genre && genre.toLowerCase().includes(searchTerm)) ||
+                (mood && mood.toLowerCase().includes(searchTerm)); // Add mood to search
             
             // Genre filter with support for multi-select
             const matchesGenre = selectedTypes.includes('all') || 
                 (genre && selectedTypes.some(type => genre.includes(type)));
             
-            // Year filter with support for multi-select
-            const matchesYear = selectedYears.includes('all') || 
-                selectedYears.some(decadeStr => {
-                    const decade = parseInt(decadeStr);
-                    return parseInt(year) >= decade && parseInt(year) < decade + 10;
-                });
+            // Mood filter with support for multi-select - Fix comparison
+            const matchesMood = selectedMoods.includes('all') || 
+                (mood && selectedMoods.includes(mood));
+            
+            // Debug output for mood matching if filtering by mood
+            if (!selectedMoods.includes('all') && mood) {
+                console.log(`Song: "${songTitle}", Mood: "${mood}", Matches: ${matchesMood}`, 
+                            "Selected moods:", selectedMoods);
+            }
             
             // Artist filter with support for multi-select
             // Handle multiple artists per song (separated by "/")
@@ -627,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     selectedArtists.includes(individualArtist.trim())
                 ));
             
-            return matchesSearch && matchesGenre && matchesYear && matchesArtist;
+            return matchesSearch && matchesGenre && matchesMood && matchesArtist;
         });
     }
     
@@ -739,7 +750,7 @@ document.addEventListener('DOMContentLoaded', function() {
         noResults.classList.add('hidden');
         resultsCount.textContent = ` ${songs.length} 首`;
         
-        // Generate colors for cards based on song genre
+        // Generate colors for cards based on song genre - Update with new genre types
         const genreColors = {
             '流行': '#6c5ce7',
             'R&B': '#e84393',
@@ -748,11 +759,19 @@ document.addEventListener('DOMContentLoaded', function() {
             '摇滚': '#d63031',
             '爵士': '#fdcb6e',
             '中国风': '#e17055',
-            '古风': '#e17055', // Added color for 古风 genre
-            '粤语流行': '#00cec9',
-            '电影原声': '#74b9ff',
+            '古风': '#e17055',
+            '粤语': '#00cec9',  // Updated from '粤语流行'
+            '粤语流行': '#00cec9',  // Keep for backward compatibility
+            '影剧': '#74b9ff',  // New entry for '影剧'
+            '电影原声': '#74b9ff',  // Keep for backward compatibility
+            '电视剧原声': '#74b9ff', // Additional compatible entry
             '乡村': '#55efc4',
             '民族': '#a29bfe',
+            '嘻哈': '#fd9644',  // Add color for '嘻哈'
+            '电子': '#45aaf2',  // Add color for '电子'
+            '抒情': '#2bcbba',  // Add color for '抒情'
+            '校园': '#26de81',  // Add color for '校园'
+            '贺岁': '#fc5c65',  // Add color for '贺岁'
         };
         
         songs.forEach(song => {
@@ -769,10 +788,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const artist = song['歌手'] || '';
             const year = song['年分'] || '';
             const genre = song['類型'] || song['类型'] || '';
+            const mood = song['心情标签'] || ''; // Add mood field
             
-            // Determine card color based on genre - now for the icon color instead of background
-            const mainGenre = genre.split('/')[0];
-            const iconColor = genreColors[mainGenre] || '#6c5ce7';
+            // Determine card color based on genre - improved to handle compound genres better
+            const genresList = genre.split('/');
+            const mainGenre = genresList[0].trim();
+            const iconColor = genreColors[mainGenre] || '#6c5ce7'; // Default color if not found
             
             // Create card for grid view
             if (songContainer.className === 'grid-view') {
@@ -795,6 +816,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                     <span class="song-genre" style="background-color: ${iconColor}">${genre}</span>
+                    ${mood ? `<span class="song-mood grid-badge">${mood}</span>` : ''}
                 `;
             } else {
                 // For list view with multiple artists
@@ -819,6 +841,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <p class="song-artist">${artistHtml}</p>
                             <div class="song-meta-bottom">
                                 <span>${genre}</span>
+                                ${mood ? `<span class="song-mood">${mood}</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -1020,13 +1043,14 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         dropdown.appendChild(allOption);
         
-        // Create options from original select
+        // Create options from original select - Make sure data-value is correctly set
         Array.from(originalSelect.options).forEach(option => {
             if (option.value === 'all') return; // Skip the "all" option
             
             const optionDiv = document.createElement('div');
             optionDiv.className = 'multi-select-option';
-            optionDiv.setAttribute('data-value', option.value);
+            // Make sure the value is trimmed
+            optionDiv.setAttribute('data-value', option.value.trim());
             optionDiv.innerHTML = `
                 <span>${option.textContent}</span>
                 <i class="fas fa-check"></i>
@@ -1125,10 +1149,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             // If specific options selected, deselect "All"
             allOption.classList.remove('selected');
-            // Update hidden input value
+            // Update hidden input value - ensure trimmed values
             hiddenInput.value = selectedOptions
-                .map(opt => opt.getAttribute('data-value'))
+                .map(opt => opt.getAttribute('data-value').trim())
                 .join(',');
+            
+            // Debug log the hidden input value
+            console.log(`${filterId} hidden input value:`, hiddenInput.value);
         }
     }
     
@@ -1172,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getFilterLabel(filterId) {
         switch(filterId) {
             case 'filterType': return '类型';
-            case 'filterYear': return '年份';
+            case 'filterMood': return '心情'; // Changed from '年份' to '心情'
             case 'filterArtist': return '歌手';
             default: return '';
         }
@@ -1231,7 +1258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const songArtist = songArtistElement.textContent;
         
         // Get year and genre
-        let year = '', genre = '', duration = '';
+        let year = '', genre = '', duration = '', mood = '';
         
         // Check if we're in list view or grid view
         if (document.getElementById('songContainer').classList.contains('list-view')) {
@@ -1244,11 +1271,12 @@ document.addEventListener('DOMContentLoaded', function() {
             genre = selectedSong.querySelector('.song-genre')?.textContent || '';
         }
         
-        // Try to find the original song object to get the duration
+        // Try to find the original song object to get additional information
         const songTitleText = songTitle.trim();
         const originalSong = window.originalSongs?.find(song => song['歌曲'] === songTitleText);
-        if (originalSong && originalSong['歌曲时长']) {
-            duration = originalSong['歌曲时长'];
+        if (originalSong) {
+            duration = originalSong['歌曲时长'] || '';
+            mood = originalSong['心情标签'] || '';
         }
         
         // Format the artist HTML correctly for clickable artists
@@ -1278,6 +1306,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${year ? `<div class="random-song-year"><i class="fas fa-calendar-alt"></i>${year}</div>` : ''}
                             ${genre ? `<div class="random-song-genre"><i class="fas fa-tag"></i>${genre}</div>` : ''}
                             ${duration ? `<div class="random-song-duration"><i class="fas fa-clock"></i>${duration}</div>` : ''}
+                            ${mood ? `<div class="random-song-mood"><i class="fas fa-heart"></i>${mood}</div>` : ''}
                         </div>
                     </div>
                 </div>
