@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const genres = new Set();
         songs.forEach(song => {
             // Support both traditional and simplified Chinese field names
-            const genreField = song['類型'] || song['类型'];
+            const genreField = song['类型'];
             if (genreField) {
                 const genresList = genreField.split('/');
                 genresList.forEach(genre => genres.add(genre.trim()));
@@ -607,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const songTitle = song['歌曲'];
             const artist = song['歌手'];
             const year = song['年分'];
-            const genre = song['類型'] || song['类型'];
+            const genre = song['类型'];
             const mood = song['心情标签']?.trim(); // Added mood field with trim
             
             const matchesSearch = searchTerm === '' || 
@@ -758,20 +758,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'indie': '#0984e3',
             '摇滚': '#d63031',
             '爵士': '#fdcb6e',
-            '中国风': '#e17055',
             '古风': '#e17055',
-            '粤语': '#00cec9',  // Updated from '粤语流行'
-            '粤语流行': '#00cec9',  // Keep for backward compatibility
-            '影剧': '#74b9ff',  // New entry for '影剧'
-            '电影原声': '#74b9ff',  // Keep for backward compatibility
-            '电视剧原声': '#74b9ff', // Additional compatible entry
+            '粤语': '#00cec9',
+            '影剧': '#74b9ff',
             '乡村': '#55efc4',
             '民族': '#a29bfe',
-            '嘻哈': '#fd9644',  // Add color for '嘻哈'
-            '电子': '#45aaf2',  // Add color for '电子'
-            '抒情': '#2bcbba',  // Add color for '抒情'
-            '校园': '#26de81',  // Add color for '校园'
-            '贺岁': '#fc5c65',  // Add color for '贺岁'
+            '童谣': '#a29bfe',
+            '说唱': '#fd9644',
+            '电子': '#45aaf2',
+            '抒情': '#2bcbba',
+            '民歌': '#26de81',
+            '贺岁': '#fc5c65',
         };
         
         songs.forEach(song => {
@@ -787,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const songTitle = song['歌曲'] || '';
             const artist = song['歌手'] || '';
             const year = song['年分'] || '';
-            const genre = song['類型'] || song['类型'] || '';
+            const genre = song['类型'] || '';
             const mood = song['心情标签'] || ''; // Add mood field
             
             // Determine card color based on genre - improved to handle compound genres better
