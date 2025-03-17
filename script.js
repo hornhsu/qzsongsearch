@@ -1110,6 +1110,28 @@ document.addEventListener('DOMContentLoaded', function() {
             if (search) {
                 setTimeout(() => search.focus(), 50);
             }
+            
+            // Check if dropdown extends beyond viewport and scroll if needed
+            setTimeout(() => {
+                const dropdownRect = dropdown.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                
+                // Calculate how far the dropdown extends beyond viewport bottom
+                const overflowBottom = dropdownRect.bottom - viewportHeight;
+                
+                // If dropdown extends beyond viewport bottom, scroll to make it visible
+                if (overflowBottom > 0) {
+                    // Calculate position to scroll to (current scroll position + overflow amount + padding)
+                    const scrollPadding = 0; // Extra padding for better visibility
+                    const scrollTo = window.scrollY + overflowBottom + scrollPadding;
+                    
+                    // Use smooth scroll for better UX
+                    window.scrollTo({
+                        top: scrollTo,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 300); // Small delay to allow dropdown to fully render before measuring
         } else {
             icon.className = 'fas fa-chevron-down';
         }

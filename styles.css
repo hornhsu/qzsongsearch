@@ -300,11 +300,11 @@ header p {
     display: flex;
     flex-direction: column;
     position: relative; /* Ensure relative positioning for absolute children */
-    padding-bottom: 35px; /* Space for the tags */
+    padding-bottom: 20px; /* Space for the tags */
 }
 
 .grid-view .card-image {
-    height: 10px; /* Reduced from 60px to 10px */
+    height: 0px; /* Reduced from 60px to 10px */
     /* Remove display flex, align-items, justify-content since we won't have an icon */
 }
 
@@ -376,7 +376,7 @@ header p {
 /* Mobile responsiveness - simplified */
 @media (max-width: 480px) {
     .grid-view .song-card {
-        padding-bottom: 30px; /* Slightly less padding on mobile */
+        padding-bottom: 20px; /* Slightly less padding on mobile */
     }
     
     .grid-view .song-card .song-genre,
@@ -1080,6 +1080,7 @@ input:checked + .slider:before {
 
 .multi-select-dropdown.show {
     max-height: 250px;
+    max-height: 70vh;
     opacity: 1;
     pointer-events: auto;
 }
