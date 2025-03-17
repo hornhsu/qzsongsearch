@@ -62,7 +62,7 @@ body {
     background-attachment: fixed;
     background-size: cover; /* 改用 cover 而不是 100vw 100vh */
     background-repeat: no-repeat; /* 防止背景重复 */
-    min-height: 100vh; /* 确保至少占满整个视口高度 */
+    min-height: 100lvh; /* 确保至少占满整个视口高度 */
 }
 
 /* Dark theme background */
@@ -844,7 +844,7 @@ footer {
 .copy-notification {
     position: fixed;
     bottom: -100px;
-    bottom: -10dvh;
+    bottom: -15lvh;
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--primary-color);
@@ -1235,7 +1235,7 @@ input:checked + .slider:before {
 @media (max-width: 768px) and (orientation: landscape) {
     body::before {
         /* 重新確認在橫向模式下背景完全覆蓋 */
-        height: 100vh;
+        height: 100lvh;
         width: 100vw;
     }
 }
