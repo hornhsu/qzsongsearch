@@ -1014,6 +1014,106 @@ document.addEventListener('DOMContentLoaded', function() {
             search.type = 'text';
             search.className = 'multi-select-search';
             search.placeholder = '搜索歌手...';
+            
+            // Add click event handler to prevent propagation
+            search.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Enhanced focus handler to position dropdown above keyboard
+            search.addEventListener('focus', function() {
+                if (window.innerWidth <= 768) {
+                    const dropdown = this.closest('.multi-select-dropdown');
+                    if (dropdown) {
+                        // Save original styling for restoration later
+                        dropdown.setAttribute('data-original-position', dropdown.style.position || '');
+                        dropdown.setAttribute('data-original-bottom', dropdown.style.bottom || '');
+                        dropdown.setAttribute('data-original-top', dropdown.style.top || '');
+                        dropdown.setAttribute('data-original-left', dropdown.style.left || '');
+                        dropdown.setAttribute('data-original-right', dropdown.style.right || '');
+                        dropdown.setAttribute('data-original-width', dropdown.style.width || '');
+                        
+                        // Switch to fixed positioning
+                        dropdown.style.position = 'fixed';
+                        dropdown.style.left = '0';
+                        dropdown.style.right = '0';
+                        dropdown.style.width = '100%';
+                        
+                        // Set up viewport change monitoring for keyboard detection
+                        window.visualViewportHandler = function() {
+                            // The difference between window inner height and visual viewport height
+                            // approximates the keyboard height
+                            const keyboardHeight = window.innerHeight - window.visualViewport.height;
+                            
+                            if (keyboardHeight > 100) { // If keyboard is likely visible
+                                // Position the dropdown above the keyboard
+                                dropdown.style.bottom = `${keyboardHeight}px`;
+                                //dropdown.style.top = '50%';
+                                
+                                // Adjust maximum height to fit in the available space
+                                const availableHeight = window.visualViewport.height * 0.6; // Use 60% of available height
+                                dropdown.style.maxHeight = `${availableHeight}px`;
+                                
+                                // Add a class to indicate keyboard is visible
+                                dropdown.classList.add('keyboard-visible');
+                            } else {
+                                // Restore bottom position when keyboard is hidden
+                                dropdown.style.bottom = '0';
+                                dropdown.classList.remove('keyboard-visible');
+                            }
+                        };
+                        
+                        // Use visualViewport API if available
+                        if (window.visualViewport) {
+                            window.visualViewport.addEventListener('resize', window.visualViewportHandler);
+                            window.visualViewport.addEventListener('scroll', window.visualViewportHandler);
+                            
+                            // Initial positioning
+                            window.visualViewportHandler();
+                        } else {
+                            // Fallback for browsers without visualViewport support
+                            dropdown.style.bottom = '40%';
+                        }
+                    }
+                }
+            });
+            
+            // Clean up when focus is lost
+            search.addEventListener('blur', function() {
+                if (window.innerWidth <= 768) {
+                    const dropdown = this.closest('.multi-select-dropdown');
+                    if (dropdown) {
+                        // Restore original styling
+                        if (dropdown.hasAttribute('data-original-position')) {
+                            dropdown.style.position = dropdown.getAttribute('data-original-position');
+                            dropdown.style.bottom = dropdown.getAttribute('data-original-bottom');
+                            dropdown.style.top = dropdown.getAttribute('data-original-top');
+                            dropdown.style.left = dropdown.getAttribute('data-original-left');
+                            dropdown.style.right = dropdown.getAttribute('data-original-right');
+                            dropdown.style.width = dropdown.getAttribute('data-original-width');
+                            
+                            // Clean up saved attributes
+                            dropdown.removeAttribute('data-original-position');
+                            dropdown.removeAttribute('data-original-bottom');
+                            dropdown.removeAttribute('data-original-top');
+                            dropdown.removeAttribute('data-original-left');
+                            dropdown.removeAttribute('data-original-right');
+                            dropdown.removeAttribute('data-original-width');
+                            
+                            // Remove keyboard-visible class
+                            dropdown.classList.remove('keyboard-visible');
+                        }
+                        
+                        // Remove visualViewport handlers
+                        if (window.visualViewport && window.visualViewportHandler) {
+                            window.visualViewport.removeEventListener('resize', window.visualViewportHandler);
+                            window.visualViewport.removeEventListener('scroll', window.visualViewportHandler);
+                            delete window.visualViewportHandler;
+                        }
+                    }
+                }
+            });
+            
             search.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
                 const options = dropdown.querySelectorAll('.multi-select-option:not(.all-option)');
