@@ -11,6 +11,13 @@
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
     --primary-color-rgb: 108, 92, 231;
+    --cr-main-1: #2ac9de;
+    --cr-main-2: #f087f4;
+    --cr-1: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 20%);
+    --cr-2: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 35%);
+    --cr-3: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 50%);
+    --cr-4: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 65%);
+    --cr-5: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 80%);
 }
 
 /* Dark theme */
@@ -52,29 +59,49 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     transition: background-color 0.3s ease, color 0.3s ease;
-    
-    /* 修改背景设置，使用background-size包含整个视口 */
-    background: 
-        linear-gradient(135deg, rgba(108, 92, 231, 0.2) 0%, rgba(253, 121, 168, 0.2) 100%),
-        radial-gradient(circle at top left, rgba(162, 155, 254, 0.25) 0%, transparent 70%),
-        radial-gradient(circle at bottom right, rgba(253, 121, 168, 0.25) 0%, transparent 70%),
-        var(--background-color);
+    background: var(--background-color);
     background-attachment: fixed;
     background-size: cover; /* 改用 cover 而不是 100vw 100vh */
     background-repeat: no-repeat; /* 防止背景重复 */
     min-height: 100lvh; /* 确保至少占满整个视口高度 */
 }
 
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; /* 使用 bottom 代替 height 以確保完全覆蓋 */
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background: 
+        linear-gradient(135deg, rgba(108, 92, 231, 0.2) 0%, rgba(253, 121, 168, 0.2) 100%),
+        radial-gradient(circle at top left, rgba(162, 155, 254, 0.25) 0%, transparent 70%),
+        radial-gradient(circle at bottom right, rgba(253, 121, 168, 0.25) 0%, transparent 70%),
+        var(--background-color);
+    background-size: cover; /* 使用 cover 而不是 100% 100% */
+}
+
 /* Dark theme background */
 [data-theme="dark"] body {
+    background: var(--background-color);
+    background-attachment: fixed;
+    background-size: cover; /* 確保背景覆蓋整個視窗 */
+    background-repeat: no-repeat; /* 防止背景重复 */
+
+}
+
+[data-theme="dark"] body::before {
+    transition: background-color 0.3s ease, color 0.3s ease;
     background: 
         linear-gradient(135deg, rgba(159, 148, 255, 0.3) 0%, rgba(255, 121, 172, 0.25) 100%),
         radial-gradient(circle at top right, rgba(180, 174, 255, 0.35) 0%, transparent 80%),
         radial-gradient(circle at bottom left, rgba(255, 121, 172, 0.3) 0%, transparent 80%),
         var(--background-color);
-    background-attachment: fixed;
-    background-size: cover; /* 確保背景覆蓋整個視窗 */
-    background-repeat: no-repeat; /* 防止背景重复 */
+    background-size: cover; /* 使用 cover 而不是 100% 100% */
 }
 
 .container {
@@ -1207,33 +1234,7 @@ input:checked + .slider:before {
         /* 创建一个包含背景的伪元素 */
         position: relative;
     }
-    
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0; /* 使用 bottom 代替 height 以確保完全覆蓋 */
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background: 
-            linear-gradient(135deg, rgba(108, 92, 231, 0.2) 0%, rgba(253, 121, 168, 0.2) 100%),
-            radial-gradient(circle at top left, rgba(162, 155, 254, 0.25) 0%, transparent 70%),
-            radial-gradient(circle at bottom right, rgba(253, 121, 168, 0.25) 0%, transparent 70%),
-            var(--background-color);
-        background-size: cover; /* 使用 cover 而不是 100% 100% */
-    }
-    
-    [data-theme="dark"] body::before {
-        background: 
-            linear-gradient(135deg, rgba(159, 148, 255, 0.3) 0%, rgba(255, 121, 172, 0.25) 100%),
-            radial-gradient(circle at top right, rgba(180, 174, 255, 0.35) 0%, transparent 80%),
-            radial-gradient(circle at bottom left, rgba(255, 121, 172, 0.3) 0%, transparent 80%),
-            var(--background-color);
-        background-size: cover; /* 使用 cover 而不是 100% 100% */
-    }
+
 }
 
 /* 添加橫向螢幕特定樣式 */
