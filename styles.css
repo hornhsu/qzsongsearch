@@ -11,13 +11,6 @@
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
     --primary-color-rgb: 108, 92, 231;
-    --cr-main-1: #2ac9de;
-    --cr-main-2: #f087f4;
-    --cr-1: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 20%);
-    --cr-2: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 35%);
-    --cr-3: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 50%);
-    --cr-4: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 65%);
-    --cr-5: color-mix(in srgb, var(--cr-main-1), var(--cr-main-2) 80%);
 }
 
 /* Dark theme */
