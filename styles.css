@@ -9,8 +9,20 @@
     --card-bg-menu: #f9f9f900;
     --accent-color: #fd79a8;
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    --shadow-color: -5px -5px 15px 0px #f2b5d422, 5px 5px 15px 0px #7bdef222;
     --transition: all 0.3s ease;
     --primary-color-rgb: 108, 92, 231;
+    --background: 
+        linear-gradient(135deg, rgba(108, 92, 231, 0.2) 0%, rgba(253, 121, 168, 0.2) 100%),
+        radial-gradient(circle at top left, rgba(162, 155, 254, 0.25) 0%, transparent 70%),
+        radial-gradient(circle at bottom right, rgba(253, 121, 168, 0.25) 0%, transparent 70%),
+        var(--background-color);
+    --background-spring: 
+        radial-gradient(circle at 50% 80%, #e6d8fd 0%, transparent 50%),
+        radial-gradient(circle at 30% 60%, #afcfdb 0%, transparent 50%),
+        radial-gradient(circle at 65% 45%, #65acd8bd 0%, transparent 60%),
+        linear-gradient(0deg, #ffffff 60%, #f2d5eeb4 100%),
+        var(--background-color);
 }
 
 /* Dark theme */
@@ -25,6 +37,17 @@
     --accent-color: #ff79ac;
     --shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     --primary-color-rgb: 159, 148, 255;
+    --background: 
+        linear-gradient(135deg, rgba(159, 148, 255, 0.3) 0%, rgba(255, 121, 172, 0.25) 100%),
+        radial-gradient(circle at top right, rgba(180, 174, 255, 0.35) 0%, transparent 80%),
+        radial-gradient(circle at bottom left, rgba(255, 121, 172, 0.3) 0%, transparent 80%),
+        var(--background-color);
+    --background-spring: 
+        radial-gradient(circle at 50% 80%, #9e7ca294 0%, transparent 60%),
+        radial-gradient(circle at 30% 60%, #515ad874 0%, transparent 50%),
+        radial-gradient(circle at 60% 50%, #a6597db4 0%, transparent 70%),
+        linear-gradient(0deg, #412242 30%, #5a527c 100%),
+        var(--background-color);
 }
 
 /* Apply dark theme automatically if system preference is dark */
@@ -70,30 +93,18 @@ body::before {
     height: 100%;
     z-index: -1;
     transition: background-color 0.3s ease, color 0.3s ease;
-    background: 
-        linear-gradient(135deg, rgba(108, 92, 231, 0.2) 0%, rgba(253, 121, 168, 0.2) 100%),
-        radial-gradient(circle at top left, rgba(162, 155, 254, 0.25) 0%, transparent 70%),
-        radial-gradient(circle at bottom right, rgba(253, 121, 168, 0.25) 0%, transparent 70%),
-        var(--background-color);
+    background: var(--background-spring);
     background-size: cover; /* 使用 cover 而不是 100% 100% */
 }
 
 /* Dark theme background */
 [data-theme="dark"] body {
-    background: var(--background-color);
-    background-attachment: fixed;
-    background-size: cover; /* 確保背景覆蓋整個視窗 */
-    background-repeat: no-repeat; /* 防止背景重复 */
-
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 [data-theme="dark"] body::before {
     transition: background-color 0.3s ease, color 0.3s ease;
-    background: 
-        linear-gradient(135deg, rgba(159, 148, 255, 0.3) 0%, rgba(255, 121, 172, 0.25) 100%),
-        radial-gradient(circle at top right, rgba(180, 174, 255, 0.35) 0%, transparent 80%),
-        radial-gradient(circle at bottom left, rgba(255, 121, 172, 0.3) 0%, transparent 80%),
-        var(--background-color);
+    background: var(--background-spring);
     background-size: cover; /* 使用 cover 而不是 100% 100% */
 }
 
@@ -133,6 +144,7 @@ header p {
 }
 
 .search-box {
+    position: relative;
     display: flex;
     margin-bottom: 1rem;
     box-shadow: var(--shadow);
@@ -533,6 +545,7 @@ header p {
     height: 75px;
     flex-shrink: 0;
     font-size: 2rem; /* Restore original size for list view */
+    opacity: 0.7;
 }
 
 .list-view .card-content {
